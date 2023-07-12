@@ -1,11 +1,10 @@
-package com.example.Gemora.token;
+package com.example.Gemora.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.example.Gemora.user.User;
 
 @Data
 @Builder

@@ -1,6 +1,6 @@
 package com.example.Gemora.config;
 
-import com.example.Gemora.user.UserRepository;
+import com.example.Gemora.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

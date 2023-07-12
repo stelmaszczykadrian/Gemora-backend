@@ -3,7 +3,7 @@ package com.example.Gemora.service;
 import com.example.Gemora.model.Order;
 import com.example.Gemora.model.Product;
 import com.example.Gemora.repository.OrderRepository;
-import com.example.Gemora.user.User;
+import com.example.Gemora.model.User;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

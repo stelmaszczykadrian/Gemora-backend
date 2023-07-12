@@ -1,4 +1,4 @@
-package com.example.Gemora.user;
+package com.example.Gemora.model;
 
 public enum Role {
     USER,
