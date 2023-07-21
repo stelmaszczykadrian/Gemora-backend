@@ -1,6 +1,6 @@
 package com.example.Gemora.config;
 
-import com.example.Gemora.repository.TokenRepository;
+import com.example.Gemora.security.token.TokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

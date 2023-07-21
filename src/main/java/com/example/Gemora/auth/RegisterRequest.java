@@ -1,6 +1,6 @@
 package com.example.Gemora.auth;
 
-import com.example.Gemora.model.Role;
+import com.example.Gemora.user.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

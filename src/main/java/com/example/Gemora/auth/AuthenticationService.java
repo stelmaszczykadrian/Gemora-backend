@@ -1,11 +1,11 @@
 package com.example.Gemora.auth;
 
 import com.example.Gemora.config.JwtService;
-import com.example.Gemora.model.Token;
-import com.example.Gemora.repository.TokenRepository;
-import com.example.Gemora.model.TokenType;
-import com.example.Gemora.model.User;
-import com.example.Gemora.repository.UserRepository;
+import com.example.Gemora.security.token.Token;
+import com.example.Gemora.security.token.TokenRepository;
+import com.example.Gemora.security.token.TokenType;
+import com.example.Gemora.user.User;
+import com.example.Gemora.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
