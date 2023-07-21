@@ -1,7 +1,7 @@
-package com.example.Gemora.controller;
+package com.example.Gemora.cart;
 
-import com.example.Gemora.model.Cart;
-import com.example.Gemora.model.Product;
+import com.example.Gemora.cart.Cart;
+import com.example.Gemora.product.Product;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

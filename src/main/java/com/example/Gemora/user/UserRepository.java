@@ -1,6 +1,6 @@
-package com.example.Gemora.repository;
+package com.example.Gemora.user;
 
-import com.example.Gemora.model.User;
+import com.example.Gemora.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

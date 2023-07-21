@@ -1,9 +1,5 @@
-package com.example.Gemora.controller;
+package com.example.Gemora.auth;
 
-import com.example.Gemora.auth.AuthenticationRequest;
-import com.example.Gemora.auth.AuthenticationResponse;
-import com.example.Gemora.auth.AuthenticationService;
-import com.example.Gemora.auth.RegisterRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

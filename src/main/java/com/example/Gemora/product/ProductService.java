@@ -1,7 +1,5 @@
-package com.example.Gemora.service;
+package com.example.Gemora.product;
 
-import com.example.Gemora.model.Product;
-import com.example.Gemora.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

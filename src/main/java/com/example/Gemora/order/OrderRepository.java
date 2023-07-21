@@ -1,6 +1,6 @@
-package com.example.Gemora.repository;
+package com.example.Gemora.order;
 
-import com.example.Gemora.model.Order;
+import com.example.Gemora.order.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

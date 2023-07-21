@@ -1,4 +1,4 @@
-package com.example.Gemora.model;
+package com.example.Gemora.user;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

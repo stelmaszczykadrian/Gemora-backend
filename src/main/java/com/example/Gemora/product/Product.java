@@ -1,5 +1,6 @@
-package com.example.Gemora.model;
+package com.example.Gemora.product;
 
+import com.example.Gemora.cart.Cart;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

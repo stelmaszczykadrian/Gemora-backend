@@ -1,11 +1,11 @@
-package com.example.Gemora.controller;
+package com.example.Gemora.product;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.Gemora.model.Product;
+import com.example.Gemora.product.Product;
 
 import java.util.List;
 

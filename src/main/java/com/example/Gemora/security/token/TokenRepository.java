@@ -1,6 +1,6 @@
-package com.example.Gemora.repository;
+package com.example.Gemora.security.token;
 
-import com.example.Gemora.model.Token;
+import com.example.Gemora.security.token.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

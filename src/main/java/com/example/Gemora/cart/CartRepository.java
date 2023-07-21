@@ -1,6 +1,6 @@
-package com.example.Gemora.repository;
+package com.example.Gemora.cart;
 
-import com.example.Gemora.model.Cart;
+import com.example.Gemora.cart.Cart;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

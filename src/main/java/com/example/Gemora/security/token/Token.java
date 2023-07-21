@@ -1,5 +1,6 @@
-package com.example.Gemora.model;
+package com.example.Gemora.security.token;
 
+import com.example.Gemora.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

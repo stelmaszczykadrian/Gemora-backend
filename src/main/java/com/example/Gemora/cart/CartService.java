@@ -1,8 +1,8 @@
-package com.example.Gemora.service;
+package com.example.Gemora.cart;
 
-import com.example.Gemora.model.Cart;
-import com.example.Gemora.model.Product;
-import com.example.Gemora.repository.CartRepository;
+import com.example.Gemora.cart.Cart;
+import com.example.Gemora.product.Product;
+import com.example.Gemora.cart.CartRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
