@@ -14,16 +14,17 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "product")
 public class Product {
+    @ManyToOne
+    private Cart cart;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
+
     private String name;
     private double price;
     private String manufacturer;
     private String description;
     private String category;
-    private boolean availability;
-
-    @ManyToOne
-    private Cart cart;
+    @Lob
+    private byte[] image;
 }
