@@ -28,8 +28,7 @@ public class ProductController {
 
     @GetMapping
     public List<Product> getAllProducts() {
-        // TODO: Implement logic to retrieve all products from ProductService
-        return null;
+        return productService.getAllProducts();
     }
 
 
