@@ -1,42 +1,48 @@
 package com.example.Gemora.cart;
 
-import com.example.Gemora.cart.Cart;
 import com.example.Gemora.product.Product;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLOutput;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
-    @PostMapping("/add")
-    public ResponseEntity<Void> addToCart(@RequestBody Cart cart, @RequestBody Product product) {
-        // TODO: Implement logic to add product to the cart
-        return null;
+
+    private CartService cartService;
+
+    public CartController(CartService cartService) {
+        this.cartService = cartService;
     }
 
-    @PostMapping("/remove")
-    public ResponseEntity<Void> removeFromCart(@RequestBody Cart cart, @RequestBody Product product) {
-        // TODO: Implement logic to remove product from the cart
-        return null;
+    @GetMapping("/{userEmail}")
+    public List<CartItem> getCartItems(@PathVariable String userEmail) {
+        return cartService.getCartItemsForUser(userEmail);
     }
 
-    @PostMapping("/clear")
-    public ResponseEntity<Void> clearCart(@RequestBody Cart cart) {
-        // TODO: Implement logic to clear the cart
-        return null;
+    @PostMapping("/{userEmail}/{productId}/{quantity}")
+    public void addToCart(@PathVariable String userEmail, @PathVariable Integer productId, @PathVariable int quantity) {
+        cartService.addToCart(userEmail, productId, quantity);
     }
 
-    @GetMapping("/products")
-    public ResponseEntity<List<Product>> getCartProducts(@RequestBody Cart cart) {
-        // TODO: Implement logic to get products from the cart
-        return null;
-    }
+//    @PostMapping("/remove")
+//    public ResponseEntity<Void> removeFromCart(@RequestBody CartItem cart, @RequestBody Product product) {
+//        // TODO: Implement logic to remove product from the cart
+//        return null;
+//    }
+//
+//    @PostMapping("/clear")
+//    public ResponseEntity<Void> clearCart(@RequestBody CartItem cart) {
+//        // TODO: Implement logic to clear the cart
+//        return null;
+//    }
 
-    @GetMapping("/total-price")
-    public ResponseEntity<Double> getCartTotalPrice(@RequestBody Cart cart) {
-        // TODO: Implement logic to calculate the total price of the cart
-        return null;
-    }
+
+//    @GetMapping("/total-price")
+//    public ResponseEntity<Double> getCartTotalPrice(@RequestBody CartItem cart) {
+//        // TODO: Implement logic to calculate the total price of the cart
+//        return null;
+//    }
 }
