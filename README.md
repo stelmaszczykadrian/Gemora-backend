@@ -18,14 +18,21 @@ Welcome to **Gemora**, your one-stop destination for stunning jewelry! Whether y
 
 <br><br>
 
-[Gemora Frontend Repository](https://github.com/stelmaszczykadrian/Gemora-frontend)
-<br>
-[Gemora Admin Panel Repository](https://github.com/stelmaszczykadrian/Gemora-admin-panel)
+**This repository contains the backend code of our application.**
+
+**But don't stop there! We invite you to explore the frontend code and admin panel!**
+
+**Head over to: [Gemora Frontend Repository](https://github.com/stelmaszczykadrian/Gemora-frontend)**
+
+**Visit also: [Gemora Admin Panel Repository](https://github.com/stelmaszczykadrian/Gemora-admin-panel)**
+
 
 ## :star: Technologies
 <ul>
-  <li>Still in progress....</li></li>
-
+  <li>Java</li>
+  <li>Spring</li>
+  <li>Hibernate</li>
+  <li>PostgreSql</li>
 </ul>
 
 ## :rocket: Video of project
