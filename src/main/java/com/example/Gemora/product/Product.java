@@ -23,6 +23,8 @@ public class Product {
     private String name;
     private double price;
     private String manufacturer;
+
+    @Column(length = 1000)
     private String description;
     private String category;
     @Lob
