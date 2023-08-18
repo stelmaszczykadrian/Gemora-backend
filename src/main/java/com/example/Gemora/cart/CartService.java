@@ -2,6 +2,7 @@ package com.example.Gemora.cart;
 
 import com.example.Gemora.user.User;
 import com.example.Gemora.user.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -56,4 +57,13 @@ public class CartService {
     }
 
 
+    @Transactional
+    public void updateQuantity(Integer cartItemId, Integer newQuantity) {
+        CartItem cartItem = cartItemRepository.findById(cartItemId).orElse(null);
+
+        if (cartItem != null) {
+            cartItem.setQuantity(newQuantity);
+            cartItemRepository.save(cartItem);
+        }
+    }
 }
