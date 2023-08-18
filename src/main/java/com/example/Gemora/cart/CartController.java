@@ -1,10 +1,6 @@
 package com.example.Gemora.cart;
-
-import com.example.Gemora.product.Product;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLOutput;
 import java.util.List;
 
 @RestController
@@ -25,6 +21,12 @@ public class CartController {
     @PostMapping("/{userEmail}/{productId}/{quantity}")
     public void addToCart(@PathVariable String userEmail, @PathVariable Integer productId, @PathVariable int quantity) {
         cartService.addToCart(userEmail, productId, quantity);
+    }
+
+
+    @PostMapping("/updateQuantity")
+    public void updateProductQuantity(@RequestBody UpdateQuantityRequest request) {
+        cartService.updateQuantity(request.getProductId(), request.getNewQuantity());
     }
 
 //    @PostMapping("/remove")
