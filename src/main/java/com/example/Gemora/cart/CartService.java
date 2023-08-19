@@ -56,12 +56,12 @@ public class CartService {
         }
     }
 
-
     @Transactional
-    public void updateQuantity(Integer cartItemId, Integer newQuantity) {
-        CartItem cartItem = cartItemRepository.findById(cartItemId).orElse(null);
+    public void updateQuantity(Integer userId, Integer productId, Integer newQuantity) {
+        List<CartItem> cartItems = cartItemRepository.findByUserIdAndProductId(userId, productId);
 
-        if (cartItem != null) {
+        if (!cartItems.isEmpty()) {
+            CartItem cartItem = cartItems.get(0);
             cartItem.setQuantity(newQuantity);
             cartItemRepository.save(cartItem);
         }

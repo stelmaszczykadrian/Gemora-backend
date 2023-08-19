@@ -26,7 +26,7 @@ public class CartController {
 
     @PostMapping("/updateQuantity")
     public void updateProductQuantity(@RequestBody UpdateQuantityRequest request) {
-        cartService.updateQuantity(request.getProductId(), request.getNewQuantity());
+        cartService.updateQuantity(request.getUserId(), request.getProductId(), request.getNewQuantity());
     }
 
 //    @PostMapping("/remove")
