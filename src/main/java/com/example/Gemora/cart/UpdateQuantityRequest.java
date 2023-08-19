@@ -6,4 +6,5 @@ import lombok.Data;
 public class UpdateQuantityRequest {
     private Integer productId;
     private Integer newQuantity;
+    private Integer userId;
 }
