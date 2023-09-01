@@ -1,11 +1,12 @@
 package com.example.Gemora.product;
 
-import com.example.Gemora.cart.CartItem;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -14,8 +15,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "product")
 public class Product {
-    @ManyToOne
-    private CartItem cart;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -29,4 +28,6 @@ public class Product {
     private String category;
     @Lob
     private byte[] image;
+
+    private LocalDateTime postingDate;
 }
