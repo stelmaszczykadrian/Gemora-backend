@@ -2,12 +2,12 @@ package com.example.Gemora.product;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,9 +27,11 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+    public List<Product> getAllProducts(
+            @RequestParam String sortBy) {
+        return productService.getAllProducts(sortBy);
     }
+
 
 
     @PostMapping
@@ -48,6 +50,7 @@ public class ProductController {
                 .description(description)
                 .image(image.getBytes())
                 .manufacturer(manufacturer)
+                .postingDate(LocalDateTime.now())
                 .build();
 
         productService.saveProduct(product);
@@ -64,4 +67,22 @@ public class ProductController {
         // TODO: Implement logic to delete product by id using ProductService
 
     }
+
+    @GetMapping("category/{category}")
+    public List<Product> getProductsByCategory(@PathVariable String category){
+        return productService.getProductsByCategory(category);
+    }
+
+    @GetMapping("/sorted")
+    public List<Product> getSortedProducts(
+            @RequestParam("category") String category,
+            @RequestParam("sort") String sortType) {
+        return productService.getSortedProducts(category, sortType);
+    }
+
+    @GetMapping("/featured")
+    public List<Product> getFeaturedProducts(){
+        return productService.getFeaturedProducts();
+    }
+
 }
