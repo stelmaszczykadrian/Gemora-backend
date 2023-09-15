@@ -1,42 +1,33 @@
 package com.example.Gemora.order;
 
-import com.example.Gemora.order.Order;
-import com.example.Gemora.product.Product;
-import com.example.Gemora.user.User;
+import com.example.Gemora.payu.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
+
+    private final OrderService orderService;
+
+
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
     @PostMapping
-    public OrderDto createOrder(
-            @RequestBody CreateOrderRequest request,
-            @AuthenticationPrincipal User user) {
-        // TODO: Implement logic to create an order
-        // Sprawdzić czy user nie jest nullem, czy czyta tego usera,
-        //W Controllerze może być tylko jeden argument oznaczony adnotacją RequestBody
-        //Porobić DTO
-        // Jak argument przyjmuje listę to można zrobić klasę np  w tym przypadku CreateOrderRequest
-        //Pousuwać Response Entity, ponieważ jest to stare podejście
-        //
-        return null;
+    public ResponseEntity<String> createOrder(
+            @RequestBody OrderCreateRequest request) {
+
+        OrderCreateResponse orderCreate = orderService.createOrder(request);
+
+
+        return orderCreate.isSuccess()?new ResponseEntity<>(orderCreate.getData(),HttpStatus.OK) : new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR) ;
     }
 
-    @GetMapping
-    public List<OrderDto> getAllOrders() {
-        // TODO: Implement logic to get all orders
-        return null;
-    }
 
-    @GetMapping("/{orderId}")
-    public OrderDto getOrderById(@PathVariable Long orderId) {
-        // TODO: Implement logic to get order by ID
-        return null;
-    }
 }
 
 
