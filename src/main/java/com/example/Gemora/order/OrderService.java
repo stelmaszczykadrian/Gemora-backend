@@ -1,46 +1,58 @@
 package com.example.Gemora.order;
 
-import com.example.Gemora.product.Product;
-import com.example.Gemora.user.User;
-import org.springframework.stereotype.Service;
+import com.example.Gemora.payu.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
 
 @Service
 public class OrderService {
-    private final OrderRepository orderRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final TokenService tokenService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public OrderService(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
+    @Value("${payu.order-url}")
+    private String orderUrl;
+
+
+    public OrderService(TokenService tokenService) {
+        this.tokenService = tokenService;
+
     }
 
-    public Order createOrder(List<Product> products, User user) {
-        LocalDateTime orderDateTime = LocalDateTime.now();
-        double totalAmount = calculateTotalAmount(products);
-        Order order = Order.builder()
-                .products(products)
-                .user(user)
-                .orderDateTime(orderDateTime)
-                .totalAmount(totalAmount)
-                .build();
-        return orderRepository.save(order);
-    }
+    @SneakyThrows
+    public OrderCreateResponse createOrder(OrderCreateRequest orderCreateRequest) {
+        orderCreateRequest.setContinueUrl("http://localhost:3000/thank-you");
 
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
-    }
+        String token = tokenService.getToken();
 
-    public Order getOrderById(int orderId) {
-        return orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalStateException("Order not found with id: " + orderId));
-    }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "Bearer " + token);
 
-    private double calculateTotalAmount(List<Product> products) {
-        double totalAmount = 0;
-        for (Product product : products) {
-            totalAmount += product.getPrice();
+        HttpEntity<OrderCreateRequest> requestEntity = new HttpEntity<>(orderCreateRequest, headers);
+
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity(
+                orderUrl,
+                requestEntity,
+                String.class
+        );
+
+        if (responseEntity.getStatusCode().is3xxRedirection()) {
+            String jsonResponse = responseEntity.getBody();
+            PayUOrderCreateResponse response = objectMapper.readValue(jsonResponse, PayUOrderCreateResponse.class);
+
+            return new OrderCreateResponse(response.getRedirectUri(), true);
         }
-        return totalAmount;
+
+        return new OrderCreateResponse(null, false);
+
     }
+
+
 }
