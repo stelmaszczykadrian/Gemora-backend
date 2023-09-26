@@ -4,10 +4,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,24 +31,17 @@ public class ProductController {
         return productService.getAllProducts(sortBy);
     }
 
-
-
     @PostMapping
     public void createProduct(
-            @RequestParam("name") String name,
-            @RequestParam("price") double price,
-            @RequestParam("manufacturer") String manufacturer,
-            @RequestParam("image") MultipartFile image,
-            @RequestParam("description") String description,
-            @RequestParam("category") String category) throws IOException {
+            @RequestBody ProductRequest productRequest) throws IOException {
 
         Product product = Product.builder()
-                .name(name)
-                .price(price)
-                .category(category)
-                .description(description)
-                .image(image.getBytes())
-                .manufacturer(manufacturer)
+                .name(productRequest.getName())
+                .price(productRequest.getPrice())
+                .category(productRequest.getCategory())
+                .description(productRequest.getDescription())
+                .image(Base64.getDecoder().decode(productRequest.getImage()))
+                .manufacturer(productRequest.getManufacturer())
                 .postingDate(LocalDateTime.now())
                 .build();
 
@@ -74,7 +66,7 @@ public class ProductController {
     }
 
     @GetMapping("/sorted")
-    public List<Product> getSortedProducts(
+    public List<ProductDto> getSortedProducts(
             @RequestParam("category") String category,
             @RequestParam("sort") String sortType) {
         return productService.getSortedProducts(category, sortType);
