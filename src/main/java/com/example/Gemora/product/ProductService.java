@@ -3,9 +3,11 @@ package com.example.Gemora.product;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -44,10 +46,20 @@ public class ProductService {
     }
 
     @Transactional
-    public List<Product> getSortedProducts(String category, String sortType) {
+    public List<ProductDto> getSortedProducts(String category, String sortType) {
         List<Product> products = productRepository.findByCategory(category);
         sortProducts(products, sortType);
-        return products;
+        return products.stream().map(product ->
+                ProductDto.builder()
+                .name(product
+                        .getName())
+                        .manufacturer(product.getManufacturer())
+                        .price(product.getPrice())
+                        .description(product.getDescription())
+                        .category(product.getCategory())
+                        .image(Base64.getEncoder().encodeToString(product.getImage()))
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Transactional
