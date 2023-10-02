@@ -50,15 +50,15 @@ public class ProductService {
         List<Product> products = productRepository.findByCategory(category);
         sortProducts(products, sortType);
         return products.stream().map(product ->
-                ProductDto.builder()
-                .name(product
-                        .getName())
-                        .manufacturer(product.getManufacturer())
-                        .price(product.getPrice())
-                        .description(product.getDescription())
-                        .category(product.getCategory())
-                        .image(Base64.getEncoder().encodeToString(product.getImage()))
-                        .build())
+                        ProductDto.builder()
+                                .name(product
+                                        .getName())
+                                .manufacturer(product.getManufacturer())
+                                .price(product.getPrice())
+                                .description(product.getDescription())
+                                .category(product.getCategory())
+                                .image(Base64.getEncoder().encodeToString(product.getImage()))
+                                .build())
                 .collect(Collectors.toList());
     }
 
@@ -68,12 +68,21 @@ public class ProductService {
     }
 
     private void sortProducts(List<Product> products, String sortType) {
-        if ("ascending".equalsIgnoreCase(sortType)) {
-            products.sort(Comparator.comparing(Product::getPrice));
-        } else if ("descending".equalsIgnoreCase(sortType)) {
-            products.sort(Comparator.comparing(Product::getPrice).reversed());
-        } else if ("newest".equalsIgnoreCase(sortType)) {
-            products.sort(Comparator.comparing(Product::getPostingDate).reversed());
+        SortType enumSortType = SortType.from(sortType);
+
+        switch (enumSortType) {
+            case ASCENDING:
+                products.sort(Comparator.comparing(Product::getPrice));
+                break;
+            case DESCENDING:
+                products.sort(Comparator.comparing(Product::getPrice).reversed());
+                break;
+            case NEWEST:
+                products.sort(Comparator.comparing(Product::getPostingDate).reversed());
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported sort type: " + sortType);
         }
     }
+
 }
