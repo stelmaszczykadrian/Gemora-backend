@@ -11,16 +11,12 @@ public enum SortType {
     NEWEST;
 
     public static SortType from(String s) {
-        switch (s) {
-            case "ascending":
-                return ASCENDING;
-            case "descending":
-                return DESCENDING;
-            case "newest":
-                return NEWEST;
-            default:
-                throw new RuntimeException("Unknown sort type: " + s);
-        }
+        return switch (s) {
+            case "ascending" -> ASCENDING;
+            case "descending" -> DESCENDING;
+            case "newest" -> NEWEST;
+            default -> throw new RuntimeException("Unknown sort type: " + s);
+        };
     }
 }
 
