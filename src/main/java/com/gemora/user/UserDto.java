@@ -4,14 +4,14 @@ import lombok.Data;
 
 
 @Data
-public class UserDTO {
+public class UserDto {
     private Integer id;
     private String firstname;
     private String lastname;
     private String email;
     private Role role;
 
-    public UserDTO(User user) {
+    public UserDto(User user) {
         this.id = user.getId();
         this.firstname = user.getFirstname();
         this.lastname = user.getLastname();
