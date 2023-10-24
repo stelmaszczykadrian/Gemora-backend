@@ -11,8 +11,8 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public UserDTO getUser(String userEmail) {
+    public UserDto getUser(String userEmail) {
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        return new UserDTO(user);
+        return new UserDto(user);
     }
 }
