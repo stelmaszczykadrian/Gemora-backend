@@ -1,4 +1,4 @@
-package com.example.Gemora.unit.auth;
+package com.Gemora.unit.auth;
 
 import com.gemora.GemoraApplication;
 import com.gemora.auth.*;

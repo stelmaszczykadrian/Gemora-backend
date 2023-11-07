@@ -1,4 +1,4 @@
-package com.example.Gemora.user;
+package com.Gemora.unit.user;
 
 import com.gemora.GemoraApplication;
 import com.gemora.user.Role;

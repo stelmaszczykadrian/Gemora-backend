@@ -1,4 +1,4 @@
-package com.example.Gemora.product;
+package com.Gemora.unit.product;
 
 import com.gemora.product.ProductDto;
 import org.junit.jupiter.api.BeforeEach;
