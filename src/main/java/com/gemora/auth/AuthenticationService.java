@@ -1,6 +1,7 @@
 package com.gemora.auth;
 
 import com.gemora.config.JwtService;
+import com.gemora.user.Role;
 import com.gemora.user.UserRepository;
 import com.gemora.security.token.Token;
 import com.gemora.security.token.TokenRepository;
@@ -10,13 +11,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,18 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
+    @Value("${admin.firstname}")
+    private String adminFirstName;
+
+    @Value("${admin.lastname}")
+    private String adminLastName;
+
+    @Value("${admin.email}")
+    private String adminEmail;
+
+    @Value("${admin.password}")
+    private String adminPassword;
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
@@ -112,5 +128,36 @@ public class AuthenticationService {
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
         }
+    }
+
+    public boolean userExists(String email) {
+        Optional<User> user = repository.findByEmail(email);
+        return user.isPresent();
+    }
+
+    public AuthenticationResponse initializeAdminUserAndTokens() {
+        User admin = createAdminUser();
+        User savedAdmin = repository.save(admin);
+        String jwtAdminToken = jwtService.generateToken(admin);
+        String refreshAdminToken = jwtService.generateRefreshToken(admin);
+        saveUserToken(savedAdmin, jwtAdminToken);
+
+        return AuthenticationResponse.builder()
+                .accessToken(jwtAdminToken)
+                .refreshToken(refreshAdminToken)
+                .build();
+    }
+
+    private User createAdminUser() {
+        String rawPassword = adminPassword;
+        String encodedPassword = new BCryptPasswordEncoder().encode(rawPassword);
+
+        return User.builder()
+                .firstname(adminFirstName)
+                .lastname(adminLastName)
+                .email(adminEmail)
+                .password(encodedPassword)
+                .role(Role.ADMIN)
+                .build();
     }
 }
