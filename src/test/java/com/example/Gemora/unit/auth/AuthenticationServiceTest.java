@@ -1,4 +1,4 @@
-package com.example.Gemora.auth;
+package com.example.Gemora.unit.auth;
 
 import com.gemora.GemoraApplication;
 import com.gemora.auth.AuthenticationRequest;
@@ -13,6 +13,9 @@ import com.gemora.user.User;
 import com.gemora.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.util.List;
@@ -94,11 +98,40 @@ public class AuthenticationServiceTest {
         //when
         AuthenticationResponse authenticationResponse = authenticationService.authenticate(authenticationRequest);
 
-
         //then
         assertAuthenticationResponseIsValid(authenticationResponse);
         verify(tokenRepository, times(1)).saveAll(any(Iterable.class));
 
+    }
+
+    @Test
+    public void userExists_ReturnsTrue_ForExistingUser(){
+        //given
+        String email = "test@example.com";
+        User user = new User();
+        user.setEmail(email);
+
+        when(userRepositoryMock.findByEmail(email)).thenReturn(Optional.of(user));
+
+        //when
+        boolean exists = authenticationService.userExists(email);
+
+        //then
+        assertThat(exists).isTrue();
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"non-existing@test.pl"})
+    public void userExists_ReturnsFalse_ForNonExistingUser(String email) {
+        //given
+        when(userRepositoryMock.findByEmail(email)).thenReturn(Optional.empty());
+
+        //when
+        boolean exists = authenticationService.userExists(email);
+
+        //then
+        assertFalse(exists);
     }
 
     private void assertAuthenticationResponseIsValid(AuthenticationResponse authenticationResponse) {
