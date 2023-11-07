@@ -2,8 +2,11 @@ package com.gemora.auth;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,12 +23,31 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
-            @RequestBody RegisterRequest request) {
+            @Valid @RequestBody RegisterRequest request, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            return handleBindingResultErrors();
+        }
+
+        if (userExists(request.getEmail())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
         return ResponseEntity.ok(service.register(request));
     }
+
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(
-            @RequestBody AuthenticationRequest request) {
+            @Valid @RequestBody AuthenticationRequest request, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            return handleBindingResultErrors();
+        }
+
+        if (!userExists(request.getEmail())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
         return ResponseEntity.ok(service.authenticate(request));
     }
 
@@ -35,6 +57,15 @@ public class AuthenticationController {
             HttpServletResponse response) throws IOException {
         service.refreshToken(request, response);
     }
+
+    private ResponseEntity<AuthenticationResponse> handleBindingResultErrors() {
+        return ResponseEntity.badRequest().build();
+    }
+
+    public boolean userExists(String email) {
+        return service.userExists(email);
+    }
+
 
 
 }
