@@ -284,6 +284,18 @@ public class ProductServiceTest {
         assertThrows(IllegalArgumentException.class, () -> productService.createProduct(null));
     }
 
+    @Test
+    void deleteProductById_DeleteProductFromDatabase_DeleteWasCalledOnce() {
+        //when
+        productService.deleteProductById(PRODUCT_1_ID);
+
+        //then
+        verify(productRepositoryMock, times(1)).deleteById(PRODUCT_1_ID);
+
+        Product productAfterDelete = productRepositoryMock.findById(PRODUCT_1_ID).orElse(null);
+        assertThat(productAfterDelete).isNull();
+    }
+
     private void assertProductDtoEquals(ProductDto expected, ProductDto actual) {
         assertThat(actual.getId()).isEqualTo(expected.getId());
         assertThat(actual.getName()).isEqualTo(expected.getName());

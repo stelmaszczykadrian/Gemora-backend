@@ -102,4 +102,8 @@ public class ProductService {
 
         productRepository.save(product);
     }
+
+    public void deleteProductById(int id) {
+        productRepository.deleteById(id);
+    }
 }

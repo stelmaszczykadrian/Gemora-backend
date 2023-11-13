@@ -168,6 +168,15 @@ public class ProductControllerTest {
         assertProductDtos(featuredProduct1, featuredProduct2, expectedFeaturedProducts, actualFeaturedProducts);
     }
 
+    @Test
+    void deleteProductById_DeleteProductFromDatabase_DeleteWasCalledOnce() {
+        //when
+        productController.deleteProductById(PRODUCT_1_ID);
+
+        //then
+        verify(productService, times(1)).deleteProductById(PRODUCT_1_ID);
+    }
+
     private ProductDto getProductDto(int id, String productName, double price, String category) {
         return new ProductDto(id, productName, price, PRODUCT_MANUFACTURER, PRODUCT_DESCRIPTION, category, BASE64_ENCODED_IMAGE);
     }
