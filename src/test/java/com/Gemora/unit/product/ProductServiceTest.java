@@ -296,6 +296,26 @@ public class ProductServiceTest {
         assertThat(productAfterDelete).isNull();
     }
 
+    @Test
+    public void updateProduct_ValidProductData_UpdatesProduct() {
+        //given
+        int id = 1;
+        String BASE64_ENCODED_IMAGE = Base64.getEncoder().encodeToString(IMAGE_BYTES);
+
+        ProductDto productDto = new ProductDto(id, "Update Product", 300, "Update Manufacturer", "Update description", CATEGORY_NAME, BASE64_ENCODED_IMAGE );
+
+        Product productToUpdate = new Product(productDto.getId(), productDto.getName(), productDto.getPrice(), productDto.getManufacturer(),
+                productDto.getDescription(), productDto.getCategory(), productDto.getImage().getBytes(), LocalDateTime.now());
+
+        when(productRepositoryMock.findById(id)).thenReturn(Optional.of(productToUpdate));
+
+        //when
+        productService.updateProductById(id, productDto);
+
+        //then
+        verify(productRepositoryMock, times(1)).save(productToUpdate);
+    }
+
     private void assertProductDtoEquals(ProductDto expected, ProductDto actual) {
         assertThat(actual.getId()).isEqualTo(expected.getId());
         assertThat(actual.getName()).isEqualTo(expected.getName());
