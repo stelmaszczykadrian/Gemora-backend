@@ -56,5 +56,10 @@ public class ProductController {
         productService.deleteProductById(id);
     }
 
-
+    @PutMapping("/edit/{id}")
+    public void updateProductById(
+            @PathVariable int id,
+            @RequestBody ProductDto product) {
+        productService.updateProductById(id, product);
+    }
 }

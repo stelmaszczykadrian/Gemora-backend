@@ -106,4 +106,20 @@ public class ProductService {
     public void deleteProductById(int id) {
         productRepository.deleteById(id);
     }
+
+    public void updateProductById(int id, ProductDto product) {
+        Optional<Product> productToUpdate = productRepository.findById(id);
+
+        productToUpdate.ifPresent(p -> {
+            p.setName(product.getName());
+            p.setPrice(product.getPrice());
+            p.setManufacturer(product.getManufacturer());
+            p.setDescription(product.getDescription());
+            p.setCategory(product.getCategory());
+            p.setImage(Base64.getDecoder().decode(product.getImage()));
+
+            productRepository.save(p);
+        });
+
+    }
 }

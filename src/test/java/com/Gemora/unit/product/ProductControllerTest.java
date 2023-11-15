@@ -177,6 +177,21 @@ public class ProductControllerTest {
         verify(productService, times(1)).deleteProductById(PRODUCT_1_ID);
     }
 
+    @Test
+    void updateProductById_UpdatesProductWithValidData_UpdatesProduct() {
+        //given
+        int productId = 1;
+        ProductDto productDto = getProductDto(1, "UpdatedProduct", 300, CATEGORY_NAME);
+
+        when(productService.getProductById(PRODUCT_1_ID)).thenReturn(Optional.of(productDto));
+
+        //when
+        productController.updateProductById(productId, productDto);
+
+        //then
+        verify(productService, times(1)).updateProductById(productId, productDto);
+    }
+
     private ProductDto getProductDto(int id, String productName, double price, String category) {
         return new ProductDto(id, productName, price, PRODUCT_MANUFACTURER, PRODUCT_DESCRIPTION, category, BASE64_ENCODED_IMAGE);
     }
