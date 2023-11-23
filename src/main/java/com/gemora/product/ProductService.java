@@ -18,14 +18,14 @@ public class ProductService {
     public Optional<ProductDto> getProductById(int id) {
         Optional<Product> productOptional = productRepository.findById(id);
 
-        return productOptional.map(this::mapProductToDto);
+        return productOptional.map(ProductMapper::mapProductToDto);
     }
 
     public List<ProductDto> getAllProducts(String sortType) {
         List<Product> products = productRepository.findAll();
         sortProducts(products, sortType);
         return products.stream()
-                .map(this::mapProductToDto)
+                .map(ProductMapper::mapProductToDto)
                 .collect(Collectors.toList());
     }
 
@@ -36,7 +36,7 @@ public class ProductService {
         List<Product> products = productRepository.findByCategory(categoryEnum.name());
 
         return products.stream()
-                .map(this::mapProductToDto)
+                .map(ProductMapper::mapProductToDto)
                 .collect(Collectors.toList());
     }
 
@@ -48,7 +48,7 @@ public class ProductService {
 
         sortProducts(products, sortType);
         return products.stream()
-                .map(this::mapProductToDto)
+                .map(ProductMapper::mapProductToDto)
                 .collect(Collectors.toList());
     }
 
@@ -59,7 +59,7 @@ public class ProductService {
         List<Product> products = productRepository.findByCategory(category.name());
 
         return products.stream()
-                .map(this::mapProductToDto)
+                .map(ProductMapper::mapProductToDto)
                 .collect(Collectors.toList());
     }
 
@@ -71,18 +71,6 @@ public class ProductService {
             case DESCENDING -> products.sort(Comparator.comparing(Product::getPrice).reversed());
             case NEWEST -> products.sort(Comparator.comparing(Product::getPostingDate).reversed());
         }
-    }
-
-    private ProductDto mapProductToDto(Product product) {
-        return ProductDto.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .price(product.getPrice())
-                .manufacturer(product.getManufacturer())
-                .description(product.getDescription())
-                .category(product.getCategory())
-                .image(Base64.getEncoder().encodeToString(product.getImage()))
-                .build();
     }
 
     public void createProduct(ProductRequest productRequest) {
