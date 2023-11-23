@@ -12,6 +12,9 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 public class OrderService {
@@ -78,6 +81,14 @@ public class OrderService {
 
     public void saveOrder(Order order) {
         orderRepository.save(order);
+    }
+
+    public List<OrderDto> getAllOrders() {
+        List<Order> orders = orderRepository.findAll();
+
+        return orders.stream()
+                .map(OrderDto::new)
+                .collect(Collectors.toList());
     }
 
 
