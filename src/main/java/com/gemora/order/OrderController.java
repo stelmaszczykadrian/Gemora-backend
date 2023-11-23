@@ -27,6 +27,11 @@ public class OrderController {
         return orderCreate.isSuccess()?new ResponseEntity<>(orderCreate.getData(),HttpStatus.OK) : new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR) ;
     }
 
+    @PostMapping("/save-order")
+    public void saveOrder(@RequestBody Order order) {
+        orderService.saveOrder(order);
+    }
+
 
 }
 

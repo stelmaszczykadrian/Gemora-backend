@@ -1,7 +1,6 @@
 package com.gemora.order;
 
 import com.gemora.user.User;
-import com.gemora.product.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,15 +21,19 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToMany
-    private List<Product> products;
+    @ElementCollection
+    @CollectionTable(name = "order_items", joinColumns = @JoinColumn(name = "order_id"))
+    private List<OrderSimplifiedProduct> products;
 
     @ManyToOne
     private User user;
 
     @Column(name = "order_date_time")
-    private LocalDateTime orderDateTime;
+    private LocalDateTime orderDateTime = LocalDateTime.now();
 
     @Column(name = "total_amount")
     private double totalAmount;
+
+    @Embedded
+    private ShippingDetails shippingDetails;
 }
