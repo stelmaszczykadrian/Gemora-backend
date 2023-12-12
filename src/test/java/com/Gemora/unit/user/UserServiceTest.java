@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
 
+import static com.Gemora.unit.auth.AuthenticationTestHelper.createUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,10 +24,6 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = GemoraApplication.class)
 public class UserServiceTest {
-    private final String USER_EMAIL = "johndoe@example.com";
-    private final String USER_FIRSTNAME = "John";
-    private final String USER_LASTNAME= "John";
-    private final String USER_PASSWORD= "John";
     private UserService userService;
 
     @Mock
@@ -38,18 +35,18 @@ public class UserServiceTest {
     }
 
     @Test
-    public void getUser_ReturnsValidUserDto_UserEmailIsExist() {
+    public void getUser_ReturnsValidUserDto_UserEmailExist() {
         //given
-        User userMock = new User(1,USER_FIRSTNAME, USER_LASTNAME, USER_EMAIL, USER_PASSWORD, Role.USER);
+        User userMock = createUser();
 
-        when(userRepositoryMock.findByEmail(USER_EMAIL)).thenReturn(Optional.of(userMock));
+        when(userRepositoryMock.findByEmail(userMock.getEmail())).thenReturn(Optional.of(userMock));
 
         //when
-        UserDto userDto = userService.getUser(USER_EMAIL);
+        UserDto userDto = userService.getUser(userMock.getEmail());
 
         //then
         assertThat(userDto).isNotNull();
-        assertThat(userDto.getEmail()).isEqualTo(USER_EMAIL);
+        assertThat(userDto.getEmail()).isEqualTo(userMock.getEmail());
     }
 
     @Test
@@ -75,16 +72,18 @@ public class UserServiceTest {
     @EnumSource(Role.class)
     public void getUser_ReturnsValidUserDto_ForAnyUserRole(Role role) {
         //given
-        User userMock = new User(1,USER_FIRSTNAME, USER_LASTNAME, USER_EMAIL, USER_PASSWORD, role);
+        String userEmail = "johndoe@example.com";
 
-        when(userRepositoryMock.findByEmail(USER_EMAIL)).thenReturn(Optional.of(userMock));
+        User userMock = new User(1,"John", "Doe", userEmail, "abcdefg", role);
+
+        when(userRepositoryMock.findByEmail(userEmail)).thenReturn(Optional.of(userMock));
 
         //when
-        UserDto userDto = userService.getUser(USER_EMAIL);
+        UserDto userDto = userService.getUser(userEmail);
 
         //then
         assertThat(userDto).isNotNull();
-        assertThat(userDto.getEmail()).isEqualTo(USER_EMAIL);
+        assertThat(userDto.getEmail()).isEqualTo(userEmail);
         assertThat(userDto.getRole()).isEqualTo(role);
     }
 }

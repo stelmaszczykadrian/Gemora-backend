@@ -6,10 +6,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static com.Gemora.unit.auth.AuthenticationTestHelper.createUser;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = GemoraApplication.class)
@@ -25,46 +27,35 @@ public class UserControllerTest {
     }
 
     @Test
-    void getCurrentUser_ReturnUserDto_WhenUserExists(){
+    void getCurrentUser_ReturnsUserDto_UserExists() {
         //given
-        User user = createSampleUser();
+        User user = createUser();
+
         UserDto expectedUserDto = new UserDto(user);
 
         when(userService.getUser(user.getEmail())).thenReturn(expectedUserDto);
 
         //when
-        UserDto actualUserDto = userController.getCurrentUser(user.getEmail());
+        ResponseEntity<UserDto> response = userController.getCurrentUser(user.getEmail());
 
         //then
-        assertEquals(expectedUserDto, actualUserDto);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody()).isEqualTo(expectedUserDto);
     }
 
     @Test
-    void getCurrentUser_ThrowsException_UserNotFound() {
+    void getCurrentUser_ReturnsNotFound_UserNotFoundExceptionIsThrown() {
         //given
         String userEmail = "nonexistent@example.com";
 
-        //when
         when(userService.getUser(userEmail)).thenThrow(UsernameNotFoundException.class);
 
-        //then
-        assertThrows(UsernameNotFoundException.class, () -> userController.getCurrentUser(userEmail));
+        // when
+        ResponseEntity<UserDto> response = userController.getCurrentUser(userEmail);
+
+        // then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isNull();
     }
-
-    private User createSampleUser() {
-        Integer userId = 1;
-        String userEmail = "test@example.com";
-        String userFirstname = "John";
-        String userLastname = "Doe";
-
-        return User.builder()
-                .id(userId)
-                .firstname(userFirstname)
-                .lastname(userLastname)
-                .email(userEmail)
-                .role(Role.USER)
-                .build();
-    }
-
-
 }
