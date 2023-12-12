@@ -5,6 +5,7 @@ import com.gemora.product.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.Gemora.unit.product.ProductTestHelper.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,34 +14,13 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = GemoraApplication.class)
 public class ProductServiceTest {
-
-    private final String CATEGORY_NAME = "FEATURED";
-    private final String SORT_TYPE_ASC = "ascending";
-    private final String PRODUCT_MANUFACTURER = "Acme Corporation";
-    private final String PRODUCT_DESCRIPTION = "This is a product description.";
-    private final String SORT_TYPE_NEW = "newest";
-    private final String PRODUCT_1_NAME = "Product 1";
-    private final String PRODUCT_2_NAME = "Product 2";
-    private final Integer PRODUCT_1_ID = 1;
-    private final Integer PRODUCT_2_ID = 2;
-    private final byte[] IMAGE_BYTES = new byte[]{1, 2, 3};
-    private final String BASE64_ENCODED_IMAGE = Base64.getEncoder().encodeToString(IMAGE_BYTES);
-    private final double LOWER_PRICE = 100.00;
-    private final double HIGHER_PRICE = 200.00;
-    private final int FIRST_PRODUCT_INDEX = 0;
-    private final int SECOND_PRODUCT_INDEX = 1;
-    private final Product product = new Product(1, PRODUCT_1_NAME, LOWER_PRICE, PRODUCT_MANUFACTURER, PRODUCT_DESCRIPTION, CATEGORY_NAME, IMAGE_BYTES, LocalDateTime.now());
     private ProductService productService;
 
     @Mock
@@ -54,11 +34,16 @@ public class ProductServiceTest {
     @Test
     void getProductById_ReturnsProductDto_ProductExists() {
         //given
-        ProductDto expectedProductDto = new ProductDto(PRODUCT_1_ID, PRODUCT_1_NAME, LOWER_PRICE, PRODUCT_MANUFACTURER, PRODUCT_DESCRIPTION, CATEGORY_NAME, BASE64_ENCODED_IMAGE);
-        when(productRepositoryMock.findById(PRODUCT_1_ID)).thenReturn(Optional.of(product));
+        int productId = 1;
+        String category = "RINGS";
+        ProductDto expectedProductDto = createProductDto(productId, "Product name 1", 100, category);
+
+        Product product = createProduct(productId, "Product name 1", 100, category, null);
+
+        when(productRepositoryMock.findById(productId)).thenReturn(Optional.of(product));
 
         //when
-        Optional<ProductDto> productDtoOptional = productService.getProductById(PRODUCT_1_ID);
+        Optional<ProductDto> productDtoOptional = productService.getProductById(productId);
 
         //then
         assertThat(productDtoOptional).isPresent();
@@ -68,11 +53,12 @@ public class ProductServiceTest {
     @Test
     void getProductById_ReturnsEmptyOptional_ProductIdDoesNotExist() {
         //given
-        int id = 100;
-        when(productRepositoryMock.findById(PRODUCT_1_ID)).thenReturn(Optional.of(product));
+        int productId = 100;
+
+        when(productRepositoryMock.findById(productId)).thenReturn(Optional.empty());
 
         //when
-        Optional<ProductDto> productDto = productService.getProductById(id);
+        Optional<ProductDto> productDto = productService.getProductById(productId);
 
         //then
         assertTrue(productDto.isEmpty());
@@ -81,35 +67,36 @@ public class ProductServiceTest {
     @Test
     void getAllProducts_ReturnsListOfAllSortedProducts_ProductListContainsProducts() {
         //given
-        int expectedSize = 2;
+        String category = "FEATURED";
+        String sortType = "newest";
 
-        List<Product> unsortedProducts = getMockedProducts(LOWER_PRICE, CATEGORY_NAME, HIGHER_PRICE);
+        ProductDto productDto1 = createProductDto(1, "Product name 1", 100, category);
+        ProductDto productDto2 = createProductDto(2, "Product name 2", 200, category);
+
+        List<Product> unsortedProducts = createMockedProducts();
 
         when(productRepositoryMock.findAll()).thenReturn(unsortedProducts);
 
-        ProductDto productDto1 = new ProductDto(PRODUCT_1_ID, PRODUCT_1_NAME, LOWER_PRICE, PRODUCT_MANUFACTURER, PRODUCT_DESCRIPTION, CATEGORY_NAME, BASE64_ENCODED_IMAGE);
-        ProductDto productDto2 = new ProductDto(PRODUCT_2_ID, PRODUCT_2_NAME, HIGHER_PRICE, PRODUCT_MANUFACTURER, PRODUCT_DESCRIPTION, CATEGORY_NAME, BASE64_ENCODED_IMAGE);
-
         //when
-        List<ProductDto> sortedProducts = productService.getAllProducts(SORT_TYPE_NEW);
+        List<ProductDto> sortedProducts = productService.getAllProducts(sortType);
 
         //then
         verify(productRepositoryMock, times(1)).findAll();
 
-        assertThat(sortedProducts).hasSize(expectedSize);
-        assertProductDtoEquals(productDto2, sortedProducts.get(FIRST_PRODUCT_INDEX));
-        assertProductDtoEquals(productDto1, sortedProducts.get(SECOND_PRODUCT_INDEX));
+        assertThat(sortedProducts).hasSize(2);
+        assertProductDtoEquals(productDto2, sortedProducts.get(0));
+        assertProductDtoEquals(productDto1, sortedProducts.get(1));
     }
 
     @Test
     void getAllProducts_ReturnsEmptyList_ProductListIsEmpty() {
         //given
-        List<Product> emptyProducts = new ArrayList<>();
+        String sortType = "newest";
 
-        when(productRepositoryMock.findAll()).thenReturn(emptyProducts);
+        when(productRepositoryMock.findAll()).thenReturn(Collections.emptyList());
 
         //when
-        List<ProductDto> products = productService.getAllProducts(SORT_TYPE_NEW);
+        List<ProductDto> products = productService.getAllProducts(sortType);
 
         //then
         assertThat(products).isEmpty();
@@ -119,12 +106,21 @@ public class ProductServiceTest {
     @EnumSource(ProductCategory.class)
     void getProductsByCategory_ReturnsListWithAllProductsFromCategory_CategoryExists(ProductCategory productCategory) {
         //given
-        List<ProductDto> expectedValue = List.of(new ProductDto(PRODUCT_1_ID, PRODUCT_1_NAME, HIGHER_PRICE, PRODUCT_MANUFACTURER, PRODUCT_DESCRIPTION, CATEGORY_NAME, BASE64_ENCODED_IMAGE));
+        int productId = 1;
+        String productName = "Product name";
+        double price = 100;
 
-        when(productRepositoryMock.findByCategory(productCategory.name())).thenReturn(List.of(new Product(PRODUCT_1_ID, PRODUCT_1_NAME, HIGHER_PRICE, PRODUCT_MANUFACTURER, PRODUCT_DESCRIPTION, CATEGORY_NAME, IMAGE_BYTES, LocalDateTime.now())));
+        String productCategoryValue = String.valueOf(productCategory);
+
+        Product product = createProduct(productId, productName, price, productCategoryValue, null);
+        ProductDto productDto = createProductDto(productId, productName, price, productCategoryValue);
+
+        List<ProductDto> expectedValue = List.of(productDto);
+
+        when(productRepositoryMock.findByCategory(productCategory.name())).thenReturn(List.of(product));
 
         //when
-        List<ProductDto> result = productService.getProductsByCategory(productCategory.name());
+        List<ProductDto> result = productService.getProductsByCategory(productCategoryValue);
 
         //then
         assertIterableEquals(expectedValue, result);
@@ -135,49 +131,53 @@ public class ProductServiceTest {
     void getProductsByCategory_ThrowsException_CategoryDoesNotExist() {
         // given
         String category = "NonExistentCategory";
+        String message = "Unknown product category type: NonExistentCategory";
 
         //when & then
-        assertThrows(RuntimeException.class, () -> productService.getProductsByCategory(category), "Unknown product category type: NonExistentCategory");
+        assertThrows(RuntimeException.class, () -> productService.getProductsByCategory(category), message);
     }
 
     @Test
     void getSortedProducts_ReturnsSortedProductsByCategory_SortTypeIsPriceAsc() {
         //given
         String category = "RINGS";
+        String sortType = "ascending";
 
-        List<Product> products = getMockedProducts(HIGHER_PRICE, category, LOWER_PRICE);
+        List<Product> products = createMockedProducts();
 
         when(productRepositoryMock.findByCategory(category)).thenReturn(products);
 
         //when
-        List<ProductDto> sortedProducts = productService.getSortedProducts(category, SORT_TYPE_ASC);
+        List<ProductDto> sortedProducts = productService.getSortedProducts(category, sortType);
 
         //then
         assertThat(sortedProducts).isNotEmpty();
-        assertThat(sortedProducts.get(FIRST_PRODUCT_INDEX).getPrice()).isLessThan(sortedProducts.get(SECOND_PRODUCT_INDEX).getPrice());
+        assertThat(sortedProducts.get(0).getPrice()).isLessThan(sortedProducts.get(1).getPrice());
     }
 
     @Test
     void getFeaturedProducts_ReturnsListOfFeaturedProducts_CategoryIsFeatured() {
         //given
-        int expectedSize = 2;
+        String category = "FEATURED";
 
-        List<Product> products = getMockedProducts(LOWER_PRICE, CATEGORY_NAME, HIGHER_PRICE);
+        List<Product> products = createMockedProducts();
 
-        when(productRepositoryMock.findByCategory(CATEGORY_NAME)).thenReturn(products);
+        when(productRepositoryMock.findByCategory(category)).thenReturn(products);
 
         //when
         List<ProductDto> featuredProducts = productService.getFeaturedProducts();
 
         //then
         assertThat(featuredProducts).isNotNull();
-        assertThat(featuredProducts.size()).isEqualTo(expectedSize);
+        assertThat(featuredProducts.size()).isEqualTo(2);
     }
 
     @Test
     void getFeaturedProducts_ReturnsEmptyList_NoFeaturedProducts() {
         //given
-        when(productRepositoryMock.findByCategory(CATEGORY_NAME)).thenReturn(new ArrayList<>());
+        String category = "FEATURED";
+
+        when(productRepositoryMock.findByCategory(category)).thenReturn(Collections.emptyList());
 
         //when
         List<ProductDto> featuredProducts = productService.getFeaturedProducts();
@@ -189,58 +189,68 @@ public class ProductServiceTest {
     @Test
     void sortProducts_ReturnsListOfSortedProducts_ProductsAreSortedAscending() {
         //given
-        List<Product> products = getMockedProducts(LOWER_PRICE, CATEGORY_NAME, HIGHER_PRICE);
+        String sortType = "ascending";
+
+        List<Product> products = createMockedProducts();
 
         //when
-        productService.sortProducts(products, SORT_TYPE_ASC);
+        productService.sortProducts(products, sortType);
 
         //then
-        assertEquals(LOWER_PRICE, products.get(FIRST_PRODUCT_INDEX).getPrice());
-        assertEquals(HIGHER_PRICE, products.get(SECOND_PRODUCT_INDEX).getPrice());
+        assertEquals(100, products.get(0).getPrice());
+        assertEquals(200, products.get(1).getPrice());
     }
 
     @Test
     void sortProducts_ReturnsListOfSortedProducts_ProductsAreSortedDescending() {
         //given
-        List<Product> products = getMockedProducts(LOWER_PRICE, CATEGORY_NAME, HIGHER_PRICE);
+        String sortType = "descending";
+
+        List<Product> products = createMockedProducts();
 
         //when
-        String SORT_TYPE_DESC = "descending";
-        productService.sortProducts(products, SORT_TYPE_DESC);
+        productService.sortProducts(products, sortType);
 
         //then
-        assertEquals(HIGHER_PRICE, products.get(FIRST_PRODUCT_INDEX).getPrice());
-        assertEquals(LOWER_PRICE, products.get(SECOND_PRODUCT_INDEX).getPrice());
+        assertEquals(200, products.get(0).getPrice());
+        assertEquals(100, products.get(1).getPrice());
     }
 
     @Test
     void sortProducts_ReturnsListOfSortedProducts_ProductsAreSortedByNewest() {
         //given
-        List<Product> products = getMockedProducts(LOWER_PRICE, CATEGORY_NAME, HIGHER_PRICE);
+        String sortType = "newest";
+
+        List<Product> products = createMockedProducts();
 
         //when
-        productService.sortProducts(products, SORT_TYPE_NEW);
+        productService.sortProducts(products, sortType);
 
         //then
-        assertTrue(products.get(FIRST_PRODUCT_INDEX).getPostingDate().isAfter(products.get(SECOND_PRODUCT_INDEX).getPostingDate()));
+        assertTrue(products.get(0).getPostingDate().isAfter(products.get(1).getPostingDate()));
     }
 
     @Test
     void sortProducts_ThrowsException_SortTypeIsUnsupported() {
         //given
-        List<Product> products = getMockedProducts(LOWER_PRICE, CATEGORY_NAME, HIGHER_PRICE);
+        String sortType = "unsupportedSortType";
+        String message = "Unknown sort type: unsupportedSortType";
+
+        List<Product> products = createMockedProducts();
 
         //when & then
-        assertThrows(RuntimeException.class, () -> productService.sortProducts(products, "unsupportedSortType"), "Unknown sort type: unsupportedSortType");
+        assertThrows(RuntimeException.class, () -> productService.sortProducts(products, sortType), message);
     }
 
     @Test
     void sortProducts_ReturnsSortedProducts_ProductListIsEmptyList() {
         //given
+        String sortType = "ascending";
+
         List<Product> products = new ArrayList<>();
 
         //when
-        productService.sortProducts(products, SORT_TYPE_ASC);
+        productService.sortProducts(products, sortType);
 
         //then
         assertTrue(products.isEmpty());
@@ -249,27 +259,25 @@ public class ProductServiceTest {
     @Test
     void sortProducts_ReturnsSortedProducts_ProductListContainsOneProduct() {
         //given
+        String sortType = "ascending";
+        String category = "BRACELETS";
+
+        Product product = createProduct(1, "Product name 1", 100, category, null);
+
         List<Product> products = new ArrayList<>();
         products.add(product);
 
         //when
-        productService.sortProducts(products, SORT_TYPE_ASC);
+        productService.sortProducts(products, sortType);
 
         //then
-        assertEquals(product, products.get(FIRST_PRODUCT_INDEX));
+        assertEquals(product, products.get(0));
     }
 
     @Test
     void createProduct_ProductRequestWasPassed_SaveWasCalledOnce() {
         //given
-        ProductRequest productRequest = ProductRequest.builder()
-                .name(PRODUCT_1_NAME)
-                .price(LOWER_PRICE)
-                .category(CATEGORY_NAME)
-                .description(PRODUCT_DESCRIPTION)
-                .image(BASE64_ENCODED_IMAGE)
-                .manufacturer(PRODUCT_MANUFACTURER)
-                .build();
+        ProductRequest productRequest = createProductRequest();
 
         //when
         productService.createProduct(productRequest);
@@ -279,41 +287,118 @@ public class ProductServiceTest {
     }
 
     @Test
-    void createProduct_ProductRequestIsNull_SaveWasNeverCalled() {
+    void createProduct_ThrowsProductAlreadyExistsException_WhenProductExists() {
+        //given
+        String productName = "Product name";
+
+        ProductRequest productRequest = createProductRequest();
+
+        when(productRepositoryMock.findProductByName(productName)).thenReturn(Optional.of(new Product()));
+
         //when & then
-        assertThrows(IllegalArgumentException.class, () -> productService.createProduct(null));
+        assertThrows(ProductAlreadyExistsException.class, () -> productService.createProduct(productRequest));
+
+        verify(productRepositoryMock, times(1)).findProductByName(productName);
+        verify(productRepositoryMock, never()).save(any());
     }
 
     @Test
-    void deleteProductById_DeleteProductFromDatabase_DeleteWasCalledOnce() {
+    void deleteProductById_DeletesProduct_WhenProductExists() {
+        //given
+        int productId = 100;
+        String category = "FEATURED";
+
+        Product product = createProduct(productId, "Product name 1", 100, category, null);
+
+        when(productRepositoryMock.findById(productId)).thenReturn(Optional.of(product));
+
         //when
-        productService.deleteProductById(PRODUCT_1_ID);
+        productService.deleteProductById(productId);
 
         //then
-        verify(productRepositoryMock, times(1)).deleteById(PRODUCT_1_ID);
-
-        Product productAfterDelete = productRepositoryMock.findById(PRODUCT_1_ID).orElse(null);
-        assertThat(productAfterDelete).isNull();
+        verify(productRepositoryMock, times(1)).deleteById(productId);
     }
 
     @Test
-    public void updateProduct_ValidProductData_UpdatesProduct() {
+    void deleteProductById_ThrowsProductNotFoundException_ProductDoesNotExist() {
         //given
-        int id = 1;
-        String BASE64_ENCODED_IMAGE = Base64.getEncoder().encodeToString(IMAGE_BYTES);
+        int nonExistingProductId = 1000;
 
-        ProductDto productDto = new ProductDto(id, "Update Product", 300, "Update Manufacturer", "Update description", CATEGORY_NAME, BASE64_ENCODED_IMAGE );
+        when(productRepositoryMock.findById(nonExistingProductId)).thenReturn(Optional.empty());
 
-        Product productToUpdate = new Product(productDto.getId(), productDto.getName(), productDto.getPrice(), productDto.getManufacturer(),
-                productDto.getDescription(), productDto.getCategory(), productDto.getImage().getBytes(), LocalDateTime.now());
+        //when & then
+        assertThrows(ProductNotFoundException.class, () -> productService.deleteProductById(nonExistingProductId));
 
-        when(productRepositoryMock.findById(id)).thenReturn(Optional.of(productToUpdate));
+        verify(productRepositoryMock, times(1)).findById(nonExistingProductId);
+        verify(productRepositoryMock, never()).deleteById(any());
+    }
+
+    @Test
+    void updateProductById_UpdatesProduct_ValidProductData() {
+        //given
+        int productId = 1;
+
+        ProductRequest productRequest = createProductRequest();
+
+        Product productToUpdate = new Product(productId, productRequest.getName(), productRequest.getPrice(), productRequest.getManufacturer(),
+                productRequest.getDescription(), productRequest.getCategory(), productRequest.getImage().getBytes(), LocalDateTime.now());
+
+        when(productRepositoryMock.findById(productId)).thenReturn(Optional.of(productToUpdate));
 
         //when
-        productService.updateProductById(id, productDto);
+        productService.updateProductById(productId, productRequest);
 
         //then
         verify(productRepositoryMock, times(1)).save(productToUpdate);
+    }
+
+    @Test
+    void updateProductById_ThrowsProductNotFoundException_ProductDoesNotExist() {
+        //given
+        int nonExistingProductId = 100;
+
+        ProductRequest productRequest = createProductRequest();
+
+        when(productRepositoryMock.findById(nonExistingProductId)).thenReturn(Optional.empty());
+
+        //when
+        assertThrows(ProductNotFoundException.class, () -> productService.updateProductById(nonExistingProductId, productRequest));
+
+        //then
+        verify(productRepositoryMock, times(1)).findById(nonExistingProductId);
+        verify(productRepositoryMock, never()).save(any());
+    }
+
+    @Test
+    void getProductBySearchTerm_ReturnsExpectedProducts_SearchTermExists() {
+        //given
+        String searchTerm = "Product";
+        String sortType = "newest";
+
+        List<Product> products = createMockedProducts();
+
+        when(productRepositoryMock.findProductByNameContainingIgnoreCase(searchTerm)).thenReturn(products);
+
+        //when
+        List<ProductDto> actualProducts = productService.getProductBySearchTerm(searchTerm, sortType);
+
+        //then
+        assertEquals(products.size(), actualProducts.size());
+    }
+
+    @Test
+    void getProductBySearchTerm_ReturnsEmptyList_SearchTermNoExists() {
+        //given
+        String searchTerm = "nonExistingSearchTerm";
+        String sortType = "descending";
+
+        when(productRepositoryMock.findProductByNameContainingIgnoreCase(searchTerm)).thenReturn(Collections.emptyList());
+
+        //when
+        List<ProductDto> actualProducts = productService.getProductBySearchTerm(searchTerm, sortType);
+
+        //then
+        assertEquals(0, actualProducts.size());
     }
 
     private void assertProductDtoEquals(ProductDto expected, ProductDto actual) {
@@ -326,14 +411,17 @@ public class ProductServiceTest {
         assertThat(actual.getImage()).isEqualTo(expected.getImage());
     }
 
-    private List<Product> getMockedProducts(double price, String FEATURED, double price1) {
-        LocalDateTime now = LocalDateTime.now();
-        Product product1 = new Product(PRODUCT_1_ID, PRODUCT_1_NAME, price, PRODUCT_MANUFACTURER, PRODUCT_DESCRIPTION, FEATURED, IMAGE_BYTES, now.minusDays(1));
-        Product product2 = new Product(PRODUCT_2_ID, PRODUCT_2_NAME, price1, PRODUCT_MANUFACTURER, PRODUCT_DESCRIPTION, FEATURED, IMAGE_BYTES, now);
+    private List<Product> createMockedProducts() {
+        LocalDateTime date = LocalDateTime.now();
+        String category = "FEATURED";
+
+        Product product1 = createProduct(1, "Product name 1", 100, category, date.minusDays(1));
+        Product product2 = createProduct(2, "Product name 2", 200, category, date);
 
         List<Product> products = new ArrayList<>();
         products.add(product1);
         products.add(product2);
         return products;
     }
+
 }
