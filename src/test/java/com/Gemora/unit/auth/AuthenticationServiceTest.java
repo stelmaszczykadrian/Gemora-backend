@@ -6,6 +6,8 @@ import com.gemora.auth.AuthenticationResponse;
 import com.gemora.auth.AuthenticationService;
 import com.gemora.auth.RegisterRequest;
 import com.gemora.config.JwtService;
+import com.gemora.validation.exceptions.EmailAlreadyExistsException;
+import com.gemora.validation.exceptions.EmailValidationException;
 import com.gemora.security.token.Token;
 import com.gemora.security.token.TokenRepository;
 import com.gemora.user.Role;
@@ -13,15 +15,14 @@ import com.gemora.user.User;
 import com.gemora.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import static com.Gemora.unit.auth.AuthenticationTestHelper.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,7 +34,6 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = GemoraApplication.class)
 public class AuthenticationServiceTest {
-
     @Mock
     private UserRepository userRepositoryMock;
 
@@ -51,25 +51,22 @@ public class AuthenticationServiceTest {
     @Mock
     private TokenRepository tokenRepository;
 
-    private final String JWT_TOKEN = "jwtToken";
-    private final String REFRESH_TOKEN = "refreshToken";
-
     @BeforeEach
     void init() {
         authenticationService = new AuthenticationService(userRepositoryMock, tokenRepository, passwordEncoder, jwtService, authenticationManager);
     }
 
     @Test
-    public void register_UserIsRegisteredSuccessfully_WhenNewUserIsCreated(){
+    public void register_UserRegisteredSuccessfully_CreateNewUser(){
         //given
         RegisterRequest registerRequest = createRegisterRequest();
-        User expectedUser = createExpectedUser(registerRequest);
+        User expectedUser = expectedUser(registerRequest);
 
-        when(passwordEncoder.encode(registerRequest.getPassword())).thenReturn("encodedPassword");
+        when(passwordEncoder.encode(registerRequest.getPassword())).thenReturn("test");
         when(userRepositoryMock.save(any(User.class))).thenReturn(expectedUser);
-        doReturn(JWT_TOKEN).when(jwtService).generateToken(any(User.class));
-        doReturn(REFRESH_TOKEN).when(jwtService).generateRefreshToken(any(User.class));
-        when(userRepositoryMock.findByEmail(registerRequest.getEmail())).thenReturn(Optional.of(expectedUser));
+        doReturn("sampleAccessToken").when(jwtService).generateToken(any(User.class));
+        doReturn("sampleRefreshToken").when(jwtService).generateRefreshToken(any(User.class));
+        when(userRepositoryMock.findByEmail(registerRequest.getEmail())).thenReturn(Optional.empty());
 
         //when
         AuthenticationResponse response = authenticationService.register(registerRequest);
@@ -83,16 +80,45 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    public void authenticate_UserIsAuthenticatedSuccessfully_WhenValidCredentialsAreProvided(){
+    void register_ThrowsEmailValidationException_InvalidEmailFormat() {
+        //given
+        RegisterRequest request = createRegisterRequest();
+        request.setEmail("invalid-email-address");
+
+        //when
+        EmailValidationException thrown = assertThrows(EmailValidationException.class,
+                () -> authenticationService.register(request));
+
+        //then
+        assertThat(thrown.getMessage()).isEqualTo("Invalid email format. Example: gemora@com.pl");
+    }
+
+    @Test
+    void register_ThrowsEmailAlreadyExistsException_WhenEmailExists() {
+        //given
+        RegisterRequest request = createRegisterRequest();
+
+        when(userRepositoryMock.findByEmail(request.getEmail())).thenReturn(Optional.of(new User()));
+
+        //when & then
+        assertThrows(EmailAlreadyExistsException.class, () -> authenticationService.register(request));
+
+        verify(userRepositoryMock, never()).save(any(User.class));
+        verify(jwtService, never()).generateToken(any(User.class));
+        verify(jwtService, never()).generateRefreshToken(any(User.class));
+    }
+
+    @Test
+    public void authenticate_UserAuthenticatedSuccessfully_ValidCredentialsAreProvided(){
         //given
         AuthenticationRequest authenticationRequest = createAuthenticationRequest();
 
-        User user = createTestUser(authenticationRequest);
+        User user = createUser();
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(null);
         when(userRepositoryMock.findByEmail(authenticationRequest.getEmail())).thenReturn(Optional.of(user));
-        when(jwtService.generateToken(user)).thenReturn(JWT_TOKEN);
-        when(jwtService.generateRefreshToken(user)).thenReturn(REFRESH_TOKEN);
+        when(jwtService.generateToken(user)).thenReturn("sampleAccessToken");
+        when(jwtService.generateRefreshToken(user)).thenReturn("sampleRefreshToken");
         when(tokenRepository.findAllValidTokenByUser(user.getId())).thenReturn(List.of(new Token()));
 
         //when
@@ -105,51 +131,26 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    public void userExists_ReturnsTrue_ForExistingUser(){
+    void authenticate_ThrowsUsernameNotFoundException_UserDoesNotExist() {
         //given
-        String email = "test@example.com";
-        User user = new User();
-        user.setEmail(email);
+        AuthenticationRequest authenticationRequest = createAuthenticationRequest();
 
-        when(userRepositoryMock.findByEmail(email)).thenReturn(Optional.of(user));
+        when(userRepositoryMock.findByEmail(authenticationRequest.getEmail())).thenReturn(Optional.empty());
 
-        //when
-        boolean exists = authenticationService.userExists(email);
+        //when & then
+        assertThrows(UsernameNotFoundException.class, () -> {authenticationService.authenticate(authenticationRequest);});
 
-        //then
-        assertThat(exists).isTrue();
-    }
+        verify(userRepositoryMock).findByEmail(authenticationRequest.getEmail());
 
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(strings = {"non-existing@test.pl"})
-    public void userExists_ReturnsFalse_ForNonExistingUser(String email) {
-        //given
-        when(userRepositoryMock.findByEmail(email)).thenReturn(Optional.empty());
-
-        //when
-        boolean exists = authenticationService.userExists(email);
-
-        //then
-        assertFalse(exists);
     }
 
     private void assertAuthenticationResponseIsValid(AuthenticationResponse authenticationResponse) {
-        assertEquals(JWT_TOKEN, authenticationResponse.getAccessToken());
-        assertEquals(REFRESH_TOKEN, authenticationResponse.getRefreshToken());
+        assertEquals("sampleAccessToken", authenticationResponse.getAccessToken());
+        assertEquals("sampleRefreshToken", authenticationResponse.getRefreshToken());
         verify(tokenRepository, times(1)).save(any(Token.class));
     }
 
-    private RegisterRequest createRegisterRequest() {
-        RegisterRequest registerRequest = new RegisterRequest();
-        registerRequest.setFirstname("John");
-        registerRequest.setLastname("Doe");
-        registerRequest.setEmail("johndoe@example.com");
-        registerRequest.setPassword("password");
-        return registerRequest;
-    }
-
-    private User createExpectedUser(RegisterRequest registerRequest) {
+    private User expectedUser(RegisterRequest registerRequest) {
         return User.builder()
                 .firstname(registerRequest.getFirstname())
                 .lastname(registerRequest.getLastname())
@@ -158,22 +159,4 @@ public class AuthenticationServiceTest {
                 .role(Role.USER)
                 .build();
     }
-
-    private User createTestUser(AuthenticationRequest authenticationRequest) {
-        return User.builder()
-                .firstname("John")
-                .lastname("Doe")
-                .email(authenticationRequest.getEmail())
-                .password("encodedPassword")
-                .role(Role.USER)
-                .build();
-    }
-
-    private AuthenticationRequest createAuthenticationRequest() {
-        AuthenticationRequest authenticationRequest = new AuthenticationRequest();
-        authenticationRequest.setEmail("johndoe@example.com");
-        authenticationRequest.setPassword("password");
-        return authenticationRequest;
-    }
-
 }

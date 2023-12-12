@@ -2,6 +2,8 @@ package com.Gemora.unit.auth;
 
 import com.gemora.GemoraApplication;
 import com.gemora.auth.*;
+import com.gemora.validation.exceptions.EmailAlreadyExistsException;
+import com.gemora.validation.exceptions.EmailValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -9,12 +11,16 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.MapBindingResult;
 
-import java.util.HashMap;
+import java.util.Objects;
 
+import static com.Gemora.unit.TestUtils.getBindingResult;
+import static com.Gemora.unit.auth.AuthenticationTestHelper.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = GemoraApplication.class)
@@ -30,14 +36,15 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    void register_ReturnOkResponse_RegisterRequestIsValid() {
+    void register_ReturnsOkStatus_ValidRegisterRequest() {
         //given
         RegisterRequest request = createRegisterRequest();
+
         AuthenticationResponse expectedResponse = createAuthenticationResponse();
-        BindingResult bindingResult = mock(BindingResult.class);
+
+        BindingResult bindingResult = getBindingResult(false);
 
         when(authenticationService.register(request)).thenReturn(expectedResponse);
-        when(bindingResult.hasErrors()).thenReturn(false);
 
         //when
         ResponseEntity<AuthenticationResponse> responseEntity = authenticationController.register(request, bindingResult);
@@ -48,28 +55,40 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    void register_ReturnBadRequest_EmailNotValid() {
+    void register_ReturnsBadRequestStatus_InvalidRegisterRequest() {
         //given
         RegisterRequest request = createRegisterRequest();
         request.setEmail("invalid-email-address");
 
-        BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "RegisterRequest");
-        bindingResult.rejectValue("email", "error.email", "Email is not valid");
+        BindingResult bindingResult = getBindingResult(false);
+
+        String expectedErrorMessage = "Email already exists in the database.";
+
+        doThrow(new EmailValidationException(expectedErrorMessage))
+                .when(authenticationService)
+                .register(any(RegisterRequest.class));
 
         //when
         ResponseEntity<AuthenticationResponse> responseEntity = authenticationController.register(request, bindingResult);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertNotNull(responseEntity.getBody());
+        assertEquals(expectedErrorMessage, responseEntity.getBody().getValidationErrors().get("email"));
     }
 
     @Test
-    void register_ReturnConflict_UserAlreadyExists() {
+    void register_ReturnsConflictStatus_ThrowsEmailAlreadyExistsException() {
         //given
         RegisterRequest request = createRegisterRequest();
-        BindingResult bindingResult = mock(BindingResult.class);
 
-        when(authenticationService.userExists(request.getEmail())).thenReturn(true);
+        BindingResult bindingResult = getBindingResult(false);
+
+        String expectedErrorMessage = "Email already exists in the database.";
+
+        doThrow(new EmailAlreadyExistsException(expectedErrorMessage))
+                .when(authenticationService)
+                .register(any(RegisterRequest.class));
 
         //when
         ResponseEntity<AuthenticationResponse> responseEntity = authenticationController.register(request, bindingResult);
@@ -79,13 +98,14 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    void authenticate_ReturnOkResponseWithExpectedResponse_SuccessfulAuthentication() {
+    void authenticate_ReturnOkStatusWithExpectedResponse_SuccessfulAuthentication() {
         //given
-        AuthenticationRequest request = createValidAuthenticationRequest();
-        AuthenticationResponse expectedResponse = createAuthenticationResponse();
-        BindingResult bindingResult = mock(BindingResult.class);
+        AuthenticationRequest request = createAuthenticationRequest();
 
-        when(authenticationController.userExists(request.getEmail())).thenReturn(true);
+        AuthenticationResponse expectedResponse = createAuthenticationResponse();
+
+        BindingResult bindingResult = getBindingResult(false);
+
         when(authenticationService.authenticate(request)).thenReturn(expectedResponse);
 
         //when
@@ -98,60 +118,38 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    void authenticate_ReturnBindingResultErrors_BadRequest() {
+    void authenticate_ReturnBadRequestStatus_WhenBindingResultErrors() {
         //given
-        AuthenticationRequest request = createValidAuthenticationRequest();
-        BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "AuthenticationRequest");
-        bindingResult.reject("field", "error message");
+        AuthenticationRequest request = createAuthenticationRequest();
+
+        BindingResult bindingResult = getBindingResult(true);
 
         //when
         ResponseEntity<AuthenticationResponse> responseEntity = authenticationController.authenticate(request, bindingResult);
 
         //then
-        assertBadRequestResponse(responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
-    void authenticate_ReturnBadRequest_UserDoesNotExist() {
+    void authenticate_ReturnsBadRequestStatus_UserDoesNotExist() {
         //given
-        AuthenticationRequest request = createValidAuthenticationRequest();
-        BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "AuthenticationRequest");
+        AuthenticationRequest request = createAuthenticationRequest();
 
-        when(authenticationService.userExists(request.getEmail())).thenReturn(false);
+        BindingResult bindingResult = getBindingResult(false);
+
+        String expectedErrorMessage = "User already do not exists in the database.";
+
+        doThrow(new UsernameNotFoundException(expectedErrorMessage))
+                .when(authenticationService)
+                .authenticate(any(AuthenticationRequest.class));
 
         //when
         ResponseEntity<AuthenticationResponse> responseEntity = authenticationController.authenticate(request, bindingResult);
 
         //then
-        assertBadRequestResponse(responseEntity);
-        verify(authenticationService, times(0)).authenticate(request);
-    }
-
-    private void assertBadRequestResponse(ResponseEntity<AuthenticationResponse> responseEntity) {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(responseEntity.getBody()).isNull();
-    }
-
-    private AuthenticationRequest createValidAuthenticationRequest() {
-        return AuthenticationRequest.builder()
-                .email("johndoe@example.com")
-                .password("password")
-                .build();
-    }
-
-    private RegisterRequest createRegisterRequest() {
-        RegisterRequest registerRequest = new RegisterRequest();
-        registerRequest.setFirstname("John");
-        registerRequest.setLastname("Doe");
-        registerRequest.setEmail("johndoe@example.com");
-        registerRequest.setPassword("password");
-        return registerRequest;
-    }
-
-    private AuthenticationResponse createAuthenticationResponse() {
-        AuthenticationResponse authenticationResponse = new AuthenticationResponse();
-        authenticationResponse.setAccessToken("test_access_token");
-        authenticationResponse.setRefreshToken("test_refresh_token");
-        return authenticationResponse;
+        assertThat(Objects.requireNonNull(responseEntity.getBody()).getValidationErrors().get("error"))
+                .isEqualTo(expectedErrorMessage);
     }
 }
