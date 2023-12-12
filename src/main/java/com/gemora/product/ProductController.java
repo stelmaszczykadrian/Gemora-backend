@@ -1,5 +1,10 @@
 package com.gemora.product;
 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
@@ -7,10 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+import static com.gemora.validation.ValidationHelper.handleBindingResultErrors;
+
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
-
     private final ProductService productService;
 
     public ProductController(ProductService productService) {
@@ -18,48 +24,116 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public Optional<ProductDto> getProductById(@PathVariable int id) {
-        return productService.getProductById(id);
+    public ResponseEntity<ProductDto> getProductById(@PathVariable int id) {
+        Optional<ProductDto> productDtoOptional = productService.getProductById(id);
+
+        return productDtoOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    public List<ProductDto> getAllProducts(
-            @RequestParam String sortBy) {
-        return productService.getAllProducts(sortBy);
+    public ResponseEntity<List<ProductDto>> getAllProducts(@RequestParam String sortBy) {
+        List<ProductDto> allProducts = productService.getAllProducts(sortBy);
+
+        if (allProducts.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(allProducts);
+        }
     }
 
+    @Transactional
     @PostMapping
-    public void createProduct(
-            @RequestBody ProductRequest productRequest) {
-        productService.createProduct(productRequest);
+    public ResponseEntity<String> createProduct(
+            @Valid  @RequestBody ProductRequest productRequest, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return handleBindingResultErrors(bindingResult);
+        }
+
+        try {
+            productService.createProduct(productRequest);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("Product added successfully.");
+        } catch (ProductAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(e.getMessage());
+        }
     }
 
     @GetMapping("category/{category}")
-    public List<ProductDto> getProductsByCategory(@PathVariable String category){
-        return productService.getProductsByCategory(category);
+    public ResponseEntity<List<ProductDto>> getProductsByCategory(@PathVariable String category){
+        List<ProductDto> categoryProducts = productService.getProductsByCategory(category);
+
+        if (categoryProducts.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(categoryProducts);
+        }
     }
 
     @GetMapping("/sorted")
-    public List<ProductDto> getSortedProducts(
+    public ResponseEntity<List<ProductDto>> getSortedProducts(
             @RequestParam("category") String category,
             @RequestParam("sort") String sortType) {
-        return productService.getSortedProducts(category, sortType);
+        List<ProductDto> sortedProducts = productService.getSortedProducts(category, sortType);
+
+        if (sortedProducts.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(sortedProducts);
+        }
     }
 
     @GetMapping("/featured")
-    public List<ProductDto> getFeaturedProducts(){
-        return productService.getFeaturedProducts();
+    public ResponseEntity<List<ProductDto>> getFeaturedProducts(){
+        List<ProductDto> featuredProducts = productService.getFeaturedProducts();
+
+        if (featuredProducts.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(featuredProducts);
+        }
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProductById(@PathVariable int id){
-        productService.deleteProductById(id);
+    public ResponseEntity<String> deleteProductById(@PathVariable int id){
+        try {
+            productService.deleteProductById(id);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("Product deleted successfully.");
+        } catch (ProductNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        }
     }
 
     @PutMapping("/edit/{id}")
-    public void updateProductById(
+    public ResponseEntity<String> updateProductById(
             @PathVariable int id,
-            @RequestBody ProductDto product) {
-        productService.updateProductById(id, product);
+            @Valid  @RequestBody ProductRequest productRequest, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return handleBindingResultErrors(bindingResult);
+        }
+
+        try {
+            productService.updateProductById(id, productRequest);
+            return ResponseEntity.ok("Product updated successfully.");
+        } catch (ProductNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        }
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductDto>> getProductBySearchTerm(
+            @RequestParam("searchTerm") String searchTerm,
+            @RequestParam("sort") String sortType) {
+        List<ProductDto> searchedProducts = productService.getProductBySearchTerm(searchTerm, sortType);
+
+        if (searchedProducts.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(searchedProducts);
+        }
+    }
+
 }
