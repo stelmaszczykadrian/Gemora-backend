@@ -1,6 +1,8 @@
 package com.gemora.auth;
 
 import com.gemora.config.JwtService;
+import com.gemora.validation.exceptions.EmailAlreadyExistsException;
+import com.gemora.validation.exceptions.EmailValidationException;
 import com.gemora.user.Role;
 import com.gemora.user.UserRepository;
 import com.gemora.security.token.Token;
@@ -8,13 +10,16 @@ import com.gemora.security.token.TokenRepository;
 import com.gemora.security.token.TokenType;
 import com.gemora.user.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gemora.validation.EmailValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +28,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final UserRepository repository;
@@ -44,6 +50,16 @@ public class AuthenticationService {
     private String adminPassword;
 
     public AuthenticationResponse register(RegisterRequest request) {
+        if (!EmailValidator.isValidEmail(request.getEmail())) {
+            log.error("Invalid email format. Example: gemora@com.pl");
+            throw new EmailValidationException("Invalid email format. Example: gemora@com.pl");
+        }
+
+        if (userExists(request.getEmail())) {
+            log.error("Email already exists in the database.");
+            throw new EmailAlreadyExistsException("Email already exists in the database.");
+        }
+
         var user = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
@@ -62,6 +78,10 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        if(!userExists(request.getEmail())){
+            log.error("User already do not exists in the database.");
+            throw new UsernameNotFoundException("User already do not exists in the database.");
+        }
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -130,7 +150,7 @@ public class AuthenticationService {
         }
     }
 
-    public boolean userExists(String email) {
+    private boolean userExists(String email) {
         Optional<User> user = repository.findByEmail(email);
         return user.isPresent();
     }
