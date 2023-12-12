@@ -6,11 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthenticationResponse {
+    private Map<String, String> validationErrors;
     @JsonProperty("access_token")
     private String accessToken;
     @JsonProperty("refresh_token")
