@@ -1,7 +1,6 @@
 package com.gemora.auth;
 
 import com.gemora.user.Role;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,16 +12,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterRequest {
-    @NotBlank
+    @NotBlank(message = "Firstname cannot be blank")
     private String firstname;
 
-    @NotBlank
+    @NotBlank(message = "Lastname cannot be blank")
     private String lastname;
 
-    @Email
+    @NotBlank(message = "Email cannot be blank")
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "Password cannot be blank")
     private String password;
 
     @Builder.Default
