@@ -1,4 +1,4 @@
-package com.gemora.email;
+package com.gemora.validation;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

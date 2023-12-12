@@ -1,4 +1,4 @@
-package com.gemora.email;
+package com.gemora.validation.exceptions;
 
 public class EmailAlreadyExistsException extends RuntimeException {
     public EmailAlreadyExistsException(String message) {
