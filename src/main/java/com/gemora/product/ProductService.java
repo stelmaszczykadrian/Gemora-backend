@@ -1,5 +1,6 @@
 package com.gemora.product;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -8,6 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ProductService {
     private final ProductRepository productRepository;
 
@@ -74,8 +76,11 @@ public class ProductService {
     }
 
     public void createProduct(ProductRequest productRequest) {
-        if (productRequest == null) {
-            throw new IllegalArgumentException("Product request cannot be null");
+        String productName = productRequest.getName();
+
+        if (productExists(productName)) {
+            log.error("Product already exists in the database.");
+            throw new ProductAlreadyExistsException("Product already exists in the database.");
         }
 
         Product product = Product.builder()
@@ -92,10 +97,19 @@ public class ProductService {
     }
 
     public void deleteProductById(int id) {
+        if (!productExists(id)) {
+            log.error("Product not exists in the database.");
+            throw new ProductNotFoundException("Product not exists in the database.");
+        }
         productRepository.deleteById(id);
     }
 
-    public void updateProductById(int id, ProductDto product) {
+    public void updateProductById(int id, ProductRequest product) {
+        if (!productExists(id)) {
+            log.error("Product not exists in the database.");
+            throw new ProductNotFoundException("Product not exists in the database.");
+        }
+
         Optional<Product> productToUpdate = productRepository.findById(id);
 
         productToUpdate.ifPresent(p -> {
@@ -109,5 +123,28 @@ public class ProductService {
             productRepository.save(p);
         });
 
+    }
+
+    private boolean productExists(String name) {
+        Optional<Product> existingProduct = productRepository.findProductByName(name);
+
+        return existingProduct.isPresent();
+    }
+
+    private boolean productExists(Integer id) {
+        Optional<Product> existingProduct = productRepository.findById(id);
+
+        return existingProduct.isPresent();
+    }
+
+    @Transactional
+    public List<ProductDto> getProductBySearchTerm(String searchTerm, String sortType) {
+        List<Product> products = productRepository.findProductByNameContainingIgnoreCase(searchTerm);
+
+        sortProducts(products, sortType);
+
+        return products.stream()
+                .map(ProductMapper::mapProductToDto)
+                .collect(Collectors.toList());
     }
 }
