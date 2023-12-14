@@ -1,11 +1,12 @@
 package com.Gemora.e2e.user;
 
+import com.gemora.order.OrderRepository;
 import com.gemora.security.token.TokenRepository;
 import com.gemora.user.Role;
 import com.gemora.user.User;
 import com.gemora.user.UserDto;
 import com.gemora.user.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,7 +32,7 @@ public class UserE2ETest {
     @Autowired
     private TokenRepository tokenRepository;
 
-    @BeforeEach
+    @AfterEach
     void setUp() {
         tokenRepository.deleteAll();
         userRepository.deleteAll();
@@ -40,11 +41,11 @@ public class UserE2ETest {
     @Test
     public void getUserByEmail_ReturnsUserDto_UserExist() {
         //given
-        String userEmail = "johndoe@gmail.com";
+        String userEmail = "test@gmail.com";
 
         String baseUrl = "http://localhost:" + port + "/api/users/profile/" + userEmail;
 
-        User user = new User(1,"John", "Doe", "johndoe@gmail.com", "abcdef", Role.USER);
+        User user = new User(1,"John", "Doe", userEmail ,"abcdef", Role.USER);
         userRepository.save(user);
 
         //when
@@ -56,6 +57,6 @@ public class UserE2ETest {
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertNotNull(userDto);
         assertEquals("John", userDto.getFirstname());
-        assertEquals("johndoe@gmail.com", userDto.getEmail());
+        assertEquals(userEmail, userDto.getEmail());
     }
 }

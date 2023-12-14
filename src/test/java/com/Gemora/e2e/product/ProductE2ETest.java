@@ -4,7 +4,7 @@ import com.gemora.product.Product;
 import com.gemora.product.ProductDto;
 import com.gemora.product.ProductRepository;
 import com.gemora.product.ProductRequest;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,7 +32,7 @@ public class ProductE2ETest {
     @Autowired
     private ProductRepository productRepository;
 
-    @BeforeEach
+    @AfterEach
     void setUp() {
         productRepository.deleteAll();
     }
