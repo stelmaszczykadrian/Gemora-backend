@@ -6,7 +6,6 @@ import lombok.Data;
 
 @Data
 public class PayUOrderCreateResponse {
-
     @JsonAlias
     private String orderId;
     @JsonAlias

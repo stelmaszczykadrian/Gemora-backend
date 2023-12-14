@@ -40,7 +40,7 @@ public class ProductController {
     @Transactional
     @PostMapping
     public ResponseEntity<String> createProduct(
-            @Valid  @RequestBody ProductRequest productRequest, BindingResult bindingResult) {
+            @Valid @RequestBody ProductRequest productRequest, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return handleBindingResultErrors(bindingResult);
         }
@@ -56,7 +56,7 @@ public class ProductController {
     }
 
     @GetMapping("category/{category}")
-    public ResponseEntity<List<ProductDto>> getProductsByCategory(@PathVariable String category){
+    public ResponseEntity<List<ProductDto>> getProductsByCategory(@PathVariable String category) {
         List<ProductDto> categoryProducts = productService.getProductsByCategory(category);
 
         return categoryProducts.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(categoryProducts);
@@ -72,14 +72,14 @@ public class ProductController {
     }
 
     @GetMapping("/featured")
-    public ResponseEntity<List<ProductDto>> getFeaturedProducts(){
+    public ResponseEntity<List<ProductDto>> getFeaturedProducts() {
         List<ProductDto> featuredProducts = productService.getFeaturedProducts();
 
         return featuredProducts.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(featuredProducts);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProductById(@PathVariable int id){
+    public ResponseEntity<String> deleteProductById(@PathVariable int id) {
         try {
             productService.deleteProductById(id);
             return ResponseEntity.status(HttpStatus.OK)
@@ -93,7 +93,7 @@ public class ProductController {
     @PutMapping("/edit/{id}")
     public ResponseEntity<String> updateProductById(
             @PathVariable int id,
-            @Valid  @RequestBody ProductRequest productRequest, BindingResult bindingResult) {
+            @Valid @RequestBody ProductRequest productRequest, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return handleBindingResultErrors(bindingResult);
         }
@@ -115,5 +115,4 @@ public class ProductController {
 
         return searchedProducts.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(searchedProducts);
     }
-
 }

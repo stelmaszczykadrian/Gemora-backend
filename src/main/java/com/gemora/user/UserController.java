@@ -21,11 +21,8 @@ public class UserController {
         try {
             UserDto userDto = userService.getUser(userEmail);
             return ResponseEntity.ok(userDto);
-        } catch (UsernameNotFoundException e){
+        } catch (UsernameNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
-
-
-
 }

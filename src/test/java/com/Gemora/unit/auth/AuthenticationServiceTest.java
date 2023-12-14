@@ -57,7 +57,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    public void register_UserRegisteredSuccessfully_CreateNewUser(){
+    public void register_UserRegisteredSuccessfully_CreateNewUser() {
         //given
         RegisterRequest registerRequest = createRegisterRequest();
         User expectedUser = expectedUser(registerRequest);
@@ -80,7 +80,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    void register_ThrowsEmailValidationException_InvalidEmailFormat() {
+    void register_ThrowEmailValidationException_InvalidEmailFormat() {
         //given
         RegisterRequest request = createRegisterRequest();
         request.setEmail("invalid-email-address");
@@ -94,7 +94,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    void register_ThrowsEmailAlreadyExistsException_WhenEmailExists() {
+    void register_ThrowEmailAlreadyExistsException_WhenEmailExists() {
         //given
         RegisterRequest request = createRegisterRequest();
 
@@ -109,7 +109,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    public void authenticate_UserAuthenticatedSuccessfully_ValidCredentialsAreProvided(){
+    public void authenticate_UserAuthenticatedSuccessfully_ValidCredentialsAreProvided() {
         //given
         AuthenticationRequest authenticationRequest = createAuthenticationRequest();
 
@@ -131,14 +131,16 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    void authenticate_ThrowsUsernameNotFoundException_UserDoesNotExist() {
+    void authenticate_ThrowUsernameNotFoundException_UserDoesNotExist() {
         //given
         AuthenticationRequest authenticationRequest = createAuthenticationRequest();
 
         when(userRepositoryMock.findByEmail(authenticationRequest.getEmail())).thenReturn(Optional.empty());
 
         //when & then
-        assertThrows(UsernameNotFoundException.class, () -> {authenticationService.authenticate(authenticationRequest);});
+        assertThrows(UsernameNotFoundException.class, () -> {
+            authenticationService.authenticate(authenticationRequest);
+        });
 
         verify(userRepositoryMock).findByEmail(authenticationRequest.getEmail());
 

@@ -45,7 +45,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void getCurrentUser_ReturnsNotFound_UserNotFoundExceptionIsThrown() {
+    void getCurrentUser_ReturnsNotFoundStatus_ThrowUserNotFoundException() {
         //given
         String userEmail = "nonexistent@example.com";
 

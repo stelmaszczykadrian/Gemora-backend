@@ -1,6 +1,5 @@
 package com.Gemora.e2e.user;
 
-import com.gemora.order.OrderRepository;
 import com.gemora.security.token.TokenRepository;
 import com.gemora.user.Role;
 import com.gemora.user.User;
@@ -45,7 +44,7 @@ public class UserE2ETest {
 
         String baseUrl = "http://localhost:" + port + "/api/users/profile/" + userEmail;
 
-        User user = new User(1,"John", "Doe", userEmail ,"abcdef", Role.USER);
+        User user = new User(1, "John", "Doe", userEmail, "abcdef", Role.USER);
         userRepository.save(user);
 
         //when

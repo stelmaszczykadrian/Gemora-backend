@@ -14,6 +14,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import static com.Gemora.unit.product.ProductTestHelper.*;
 
 import java.util.*;
@@ -146,7 +147,8 @@ public class ProductE2ETest {
                 baseUrl,
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<>() {});
+                new ParameterizedTypeReference<>() {
+                });
 
         //then
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -170,7 +172,8 @@ public class ProductE2ETest {
                 baseUrl,
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<>() {});
+                new ParameterizedTypeReference<>() {
+                });
 
         // then
         assertEquals(HttpStatus.OK, response.getStatusCode());

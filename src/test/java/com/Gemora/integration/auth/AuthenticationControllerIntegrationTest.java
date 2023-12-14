@@ -46,14 +46,14 @@ public class AuthenticationControllerIntegrationTest {
 
         //when
         ResultActions result = mockMvc.perform(post("/api/v1/auth/register")
-                        .content(asJsonString(registerRequest))
-                        .contentType(MediaType.APPLICATION_JSON));
+                .content(asJsonString(registerRequest))
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.access_token").value("sampleAccessToken"))
                 .andExpect(jsonPath("$.refresh_token").value("sampleRefreshToken"));
-       verify(authenticationService, times(1)).register(eq(registerRequest));
+        verify(authenticationService, times(1)).register(eq(registerRequest));
     }
 
     @Test
@@ -64,8 +64,8 @@ public class AuthenticationControllerIntegrationTest {
 
         //when
         ResultActions result = mockMvc.perform(post("/api/v1/auth/register")
-                        .content(asJsonString(registerRequest))
-                        .contentType(MediaType.APPLICATION_JSON));
+                .content(asJsonString(registerRequest))
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(status().isBadRequest());
@@ -81,8 +81,8 @@ public class AuthenticationControllerIntegrationTest {
 
         //when
         ResultActions result = mockMvc.perform(post("/api/v1/auth/register")
-                        .content(asJsonString(registerRequest))
-                        .contentType(MediaType.APPLICATION_JSON));
+                .content(asJsonString(registerRequest))
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(status().isConflict());
@@ -99,8 +99,8 @@ public class AuthenticationControllerIntegrationTest {
 
         //when
         ResultActions result = mockMvc.perform(post("/api/v1/auth/authenticate")
-                        .content(asJsonString(request))
-                        .contentType(MediaType.APPLICATION_JSON));
+                .content(asJsonString(request))
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(status().isOk());
@@ -119,14 +119,14 @@ public class AuthenticationControllerIntegrationTest {
 
         // when
         ResultActions result = mockMvc.perform(post("/api/v1/auth/authenticate")
-                        .content(asJsonString(invalidRequest))
-                        .contentType(MediaType.APPLICATION_JSON));
+                .content(asJsonString(invalidRequest))
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(status().isBadRequest());
     }
 
-    private RegisterRequest invalidRegisterRequest(){
+    private RegisterRequest invalidRegisterRequest() {
         return RegisterRequest.builder()
                 .firstname("")
                 .lastname("")

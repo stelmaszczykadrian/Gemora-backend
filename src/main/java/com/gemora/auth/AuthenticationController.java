@@ -53,7 +53,7 @@ public class AuthenticationController {
         try {
             AuthenticationResponse response = authenticationService.authenticate(request);
             return ResponseEntity.ok(response);
-        }catch(UsernameNotFoundException e){
+        } catch (UsernameNotFoundException e) {
             return handleValidationException(e, "error");
         }
     }

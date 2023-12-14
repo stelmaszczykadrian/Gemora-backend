@@ -34,7 +34,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void getProductById_ReturnsProductDto_ProductExists() {
+    void getProductById_ReturnsOkStatusWithExpectedProductDto_ProductExists() {
         //given
         String category = "PENDANTS";
         int productId = 10;
@@ -67,7 +67,7 @@ public class ProductControllerTest {
 
     @ParameterizedTest
     @EnumSource(SortType.class)
-    void getAllProducts_ReturnExpectedList_ForAnySortByOptions(SortType sortType) {
+    void getAllProducts_ReturnsOkStatusWithExpectedList_ForAnySortByOptions(SortType sortType) {
         //given
         String category = "RINGS";
         String sortTypeValue = String.valueOf(sortType);
@@ -75,7 +75,7 @@ public class ProductControllerTest {
         ProductDto productDto1 = createProductDto(1, "Product name 1", 100, category);
         ProductDto productDto2 = createProductDto(2, "Product name 2", 200, category);
 
-        List<ProductDto> expectedProducts = List.of(productDto1,productDto2);
+        List<ProductDto> expectedProducts = List.of(productDto1, productDto2);
 
         when(productService.getAllProducts(sortTypeValue)).thenReturn(expectedProducts);
 
@@ -95,7 +95,7 @@ public class ProductControllerTest {
     @Test
     void getAllProducts_ReturnsNotFoundStatus_ForEmptyList() {
         //given
-        String sortType= "ascending";
+        String sortType = "ascending";
 
         when(productService.getAllProducts(sortType)).thenReturn(Collections.emptyList());
 
@@ -108,7 +108,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void createProduct_ValidProductRequest_CreateProductWasCalledOnce() {
+    void createProduct_ReturnsCreatedStatusAndCreateProductWasCalledOnce_ValidProduct() {
         //given
         ProductRequest productRequest = createProductRequest();
 
@@ -139,7 +139,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void createProduct_ReturnsConflict_ThrownProductAlreadyExistsException() {
+    void createProduct_ReturnsConflictStatus_ThrownProductAlreadyExistsException() {
         //given
         ProductRequest productRequest = createProductRequest();
 
@@ -161,7 +161,7 @@ public class ProductControllerTest {
 
     @ParameterizedTest
     @EnumSource(ProductCategory.class)
-    void getProductsByCategory_ReturnExpectedProductList_ForValidCategory(ProductCategory productCategory) {
+    void getProductsByCategory_ReturnsExpectedProductList_ForValidCategory(ProductCategory productCategory) {
         //given
         String productCategoryValue = String.valueOf(productCategory);
 
@@ -181,7 +181,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void getProductsByCategory_ReturnsNotFound_InvalidCategory() {
+    void getProductsByCategory_ReturnsNotFoundStatus_InvalidCategory() {
         //given
         String invalidCategoryName = "InvalidCategory";
         when(productService.getProductsByCategory(invalidCategoryName)).thenReturn(List.of());
@@ -195,7 +195,7 @@ public class ProductControllerTest {
 
     @ParameterizedTest
     @EnumSource(SortType.class)
-    void getSortedProducts_ReturnExpectedProductList_ValidSortTypeAndCategory(SortType sortType) {
+    void getSortedProducts_ReturnsOkStatusWithExpectedProductList_ValidSortTypeAndCategory(SortType sortType) {
         //given
         String category = "BRACELETS";
         String sortTypeValue = String.valueOf(sortType);
@@ -218,7 +218,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void getSortedProducts_ReturnsNotFound_InvalidSortType() {
+    void getSortedProducts_ReturnsNotFoundStatus_InvalidSortType() {
         //given
         String category = "BRACELETS";
         String invalidSortType = "InvalidSortType";
@@ -233,7 +233,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void getSortedProducts_ReturnsNotFound_InvalidCategory() {
+    void getSortedProducts_ReturnsNotFoundStatus_InvalidCategory() {
         //given
         String invalidCategory = "InvalidCategory";
         String sortType = "ascending";
@@ -248,7 +248,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void getFeaturedProducts_ReturnExpectedList_CategoryIsFeatured() {
+    void getFeaturedProducts_ReturnsOkStatusWithExpectedList_CategoryIsFeatured() {
         //given
         String category = "FEATURED";
 
@@ -268,7 +268,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void getFeaturedProducts_ReturnNotFound_FeaturedProductsEmpty() {
+    void getFeaturedProducts_ReturnsNotFoundStatus_FeaturedProductsEmpty() {
         //given
         when(productService.getFeaturedProducts()).thenReturn(List.of());
 
@@ -293,7 +293,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void deleteProductById_ReturnsNotFound_ProductNotFound() {
+    void deleteProductById_ReturnsNotFoundStatus_ProductNotFound() {
         //given
         int productId = 100;
 
@@ -311,7 +311,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void updateProductById_UpdatesProductWithValidData_ProductWasUpdated() {
+    void updateProductById_ReturnsOkStatusAndUpdatesProductWithValidData_ProductWasUpdated() {
         //given
         int productId = 1;
         ProductRequest productRequest = createProductRequest();
@@ -327,7 +327,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void updateProductById_ReturnsNotFound_ProductNotFound() {
+    void updateProductById_ReturnsNotFoundStatus_ProductNotFound() {
         //given
         int productId = 1;
         ProductRequest productRequest = new ProductRequest();
@@ -345,7 +345,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void updateProductById_ReturnsBadRequest_WhenBindingErrors() {
+    void updateProductById_ReturnsBadRequestStatus_WhenBindingErrors() {
         //given
         int productId = 1;
         ProductRequest productRequest = createProductRequest();
@@ -353,7 +353,7 @@ public class ProductControllerTest {
         BindingResult bindingResult = getBindingResult(true);
 
         //when
-        ResponseEntity<String> response = productController.updateProductById(productId,productRequest, bindingResult);
+        ResponseEntity<String> response = productController.updateProductById(productId, productRequest, bindingResult);
 
         //then
         verifyNoInteractions(productService);
@@ -361,7 +361,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void getProductBySearchTerm_ReturnSearchResults_WhenMatchingProductsExist() {
+    void getProductBySearchTerm_ReturnExpectedSearchResults_WhenMatchingProductsExist() {
         //given
         String category = "GEMSTONES";
         String searchTerm = "Product";
@@ -383,7 +383,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void getProductBySearchTerm_ReturnNotFound_NoMatchingProducts() {
+    void getProductBySearchTerm_ReturnsNotFoundStatus_NoMatchingProducts() {
         //given
         String searchTerm = "InvalidSearchTerm";
         String sortType = "descending";
@@ -398,7 +398,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void getProductBySearchTerm_ReturnsNotFound_InvalidSortType() {
+    void getProductBySearchTerm_ReturnsNotFoundStatus_InvalidSortType() {
         //given
         String searchTerm = "Test";
         String invalidSortType = "InvalidSortType";

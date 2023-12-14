@@ -51,8 +51,8 @@ public class OrderControllerIntegrationTest {
 
         //when
         ResultActions result = mockMvc.perform(post("/api/orders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(request)));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(request)));
 
         //then
         result.andExpect(status().isOk())

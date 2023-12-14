@@ -74,7 +74,7 @@ public class UserServiceTest {
         //given
         String userEmail = "johndoe@example.com";
 
-        User userMock = new User(1,"John", "Doe", userEmail, "abcdefg", role);
+        User userMock = new User(1, "John", "Doe", userEmail, "abcdefg", role);
 
         when(userRepositoryMock.findByEmail(userEmail)).thenReturn(Optional.of(userMock));
 

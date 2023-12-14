@@ -66,7 +66,7 @@ public class OrderControllerTest {
     }
 
     @Test
-    void saveOrder_ReturnsCreatedStatusAndSaveProductWasCalledOnce_ValidOrder(){
+    void saveOrder_ReturnsCreatedStatusAndSaveOrderWasCalledOnce_ValidOrder() {
         //given
         List<OrderSimplifiedProduct> orderSimplifiedProducts = createOrderSimplifiedProductList();
         User user = createUser();

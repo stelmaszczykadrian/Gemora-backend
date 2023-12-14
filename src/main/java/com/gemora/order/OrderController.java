@@ -10,7 +10,6 @@ import java.util.List;
 
 import static com.gemora.validation.ValidationHelper.handleBindingResultErrors;
 
-
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
@@ -56,7 +55,7 @@ public class OrderController {
     @GetMapping("/{id}")
     public ResponseEntity<List<OrderDto>> getOrdersByUserId(
             @PathVariable Integer id) {
-        List<OrderDto> userOrders  = orderService.getOrdersByUserId(id);
+        List<OrderDto> userOrders = orderService.getOrdersByUserId(id);
 
         return !userOrders.isEmpty() ? ResponseEntity.ok(userOrders) : ResponseEntity.notFound().build();
     }

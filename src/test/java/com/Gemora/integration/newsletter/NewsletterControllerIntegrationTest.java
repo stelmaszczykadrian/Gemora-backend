@@ -11,7 +11,6 @@ import org.springframework.http.MediaType;
 
 import org.springframework.test.web.servlet.ResultActions;
 
-
 import static com.Gemora.unit.TestUtils.asJsonString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -29,8 +28,8 @@ public class NewsletterControllerIntegrationTest {
 
         //when
         ResultActions result = mockMvc.perform(post("/api/email")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(newsletter)));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(newsletter)));
 
         //then
         result.andExpect(status().isCreated())
@@ -44,8 +43,8 @@ public class NewsletterControllerIntegrationTest {
 
         //when
         ResultActions result = mockMvc.perform(post("/api/email")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(newsletter)));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(newsletter)));
 
         //then
         result.andExpect(status().isBadRequest());

@@ -7,7 +7,7 @@ import com.gemora.user.Role;
 import com.gemora.user.User;
 
 public class AuthenticationTestHelper {
-    public static RegisterRequest createRegisterRequest(){
+    public static RegisterRequest createRegisterRequest() {
         return RegisterRequest.builder()
                 .firstname("John")
                 .lastname("Doe")
@@ -32,6 +32,6 @@ public class AuthenticationTestHelper {
     }
 
     public static User createUser() {
-        return new User(1,"John", "Doe", "johndoe@gmail.com", "abcdef", Role.USER);
+        return new User(1, "John", "Doe", "johndoe@gmail.com", "abcdef", Role.USER);
     }
 }

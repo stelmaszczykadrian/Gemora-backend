@@ -1,6 +1,5 @@
 package com.gemora.order;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

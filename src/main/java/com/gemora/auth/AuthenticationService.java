@@ -78,7 +78,7 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        if(!userExists(request.getEmail())){
+        if (!userExists(request.getEmail())) {
             log.error(request.getEmail(), "User already do not exists in the database.");
             throw new UsernameNotFoundException("User already do not exists in the database.");
         }
@@ -129,7 +129,7 @@ public class AuthenticationService {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
         final String userEmail;
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return;
         }
         refreshToken = authHeader.substring(7);

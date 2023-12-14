@@ -118,7 +118,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    void authenticate_ReturnBadRequestStatus_WhenBindingResultErrors() {
+    void authenticate_ReturnsBadRequestStatus_WhenBindingResultErrors() {
         //given
         AuthenticationRequest request = createAuthenticationRequest();
 

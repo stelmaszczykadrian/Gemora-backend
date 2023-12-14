@@ -128,7 +128,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    void getProductsByCategory_ThrowsException_CategoryDoesNotExist() {
+    void getProductsByCategory_ThrowRuntimeExceptionException_CategoryDoesNotExist() {
         // given
         String category = "NonExistentCategory";
         String message = "Unknown product category type: NonExistentCategory";
@@ -231,7 +231,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    void sortProducts_ThrowsException_SortTypeIsUnsupported() {
+    void sortProducts_ThrowRuntimeExceptionException_SortTypeIsUnsupported() {
         //given
         String sortType = "unsupportedSortType";
         String message = "Unknown sort type: unsupportedSortType";
@@ -287,7 +287,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    void createProduct_ThrowsProductAlreadyExistsException_WhenProductExists() {
+    void createProduct_ThrowProductAlreadyExistsException_WhenProductExists() {
         //given
         String productName = "Product name";
 
@@ -320,7 +320,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    void deleteProductById_ThrowsProductNotFoundException_ProductDoesNotExist() {
+    void deleteProductById_ThrowProductNotFoundException_ProductDoesNotExist() {
         //given
         int nonExistingProductId = 1000;
 
@@ -353,7 +353,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    void updateProductById_ThrowsProductNotFoundException_ProductDoesNotExist() {
+    void updateProductById_ThrowProductNotFoundException_ProductDoesNotExist() {
         //given
         int nonExistingProductId = 100;
 

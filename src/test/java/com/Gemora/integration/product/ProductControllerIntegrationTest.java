@@ -121,8 +121,8 @@ public class ProductControllerIntegrationTest {
 
         //when
         ResultActions result = mockMvc.perform(post("/api/products")
-                        .content(asJsonString(productRequest))
-                        .contentType(MediaType.APPLICATION_JSON));
+                .content(asJsonString(productRequest))
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(status().isCreated())
@@ -138,8 +138,8 @@ public class ProductControllerIntegrationTest {
 
         //when
         ResultActions result = mockMvc.perform(post("/api/products")
-                        .content(asJsonString(productRequest))
-                        .contentType(MediaType.APPLICATION_JSON));
+                .content(asJsonString(productRequest))
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(status().isConflict());
@@ -188,12 +188,12 @@ public class ProductControllerIntegrationTest {
 
         List<ProductDto> productDtoList = createProductDtosMockedList(category);
 
-        when(productService.getSortedProducts(eq(category),eq(sortType))).thenReturn(productDtoList);
+        when(productService.getSortedProducts(eq(category), eq(sortType))).thenReturn(productDtoList);
 
         //when
-        ResultActions result =  mockMvc.perform(get("/api/products/sorted")
-                        .param("category", category)
-                        .param("sort", sortType));
+        ResultActions result = mockMvc.perform(get("/api/products/sorted")
+                .param("category", category)
+                .param("sort", sortType));
 
         //then
         result.andExpect(status().isOk())
@@ -207,12 +207,12 @@ public class ProductControllerIntegrationTest {
         String sortType = "newest";
         String category = "RINGS";
 
-        when(productService.getSortedProducts(eq(category),eq(sortType))).thenReturn(Collections.emptyList());
+        when(productService.getSortedProducts(eq(category), eq(sortType))).thenReturn(Collections.emptyList());
 
         //when
-        ResultActions result =  mockMvc.perform(get("/api/products/sorted")
-                        .param("category", category)
-                        .param("sort", sortType));
+        ResultActions result = mockMvc.perform(get("/api/products/sorted")
+                .param("category", category)
+                .param("sort", sortType));
 
         //then
         result.andExpect(status().isNotFound())
@@ -229,7 +229,7 @@ public class ProductControllerIntegrationTest {
         when(productService.getFeaturedProducts()).thenReturn(productDtoList);
 
         //when
-        ResultActions result =  mockMvc.perform(get("/api/products/featured"));
+        ResultActions result = mockMvc.perform(get("/api/products/featured"));
 
         //then
         result.andExpect(status().isOk())
@@ -243,7 +243,7 @@ public class ProductControllerIntegrationTest {
         when(productService.getFeaturedProducts()).thenReturn(Collections.emptyList());
 
         //when
-        ResultActions result =  mockMvc.perform(get("/api/products/featured"));
+        ResultActions result = mockMvc.perform(get("/api/products/featured"));
 
         //then
         result.andExpect(status().isNotFound())
@@ -258,8 +258,8 @@ public class ProductControllerIntegrationTest {
         doNothing().when(productService).deleteProductById(eq(productId));
 
         //when
-        ResultActions result =  mockMvc.perform(delete("/api/products/{id}", productId)
-                        .contentType(MediaType.APPLICATION_JSON));
+        ResultActions result = mockMvc.perform(delete("/api/products/{id}", productId)
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(status().isOk())
@@ -274,8 +274,8 @@ public class ProductControllerIntegrationTest {
         doThrow(ProductNotFoundException.class).when(productService).deleteProductById(anyInt());
 
         //when
-        ResultActions result =  mockMvc.perform(delete("/api/products/{id}", productId)
-                        .contentType(MediaType.APPLICATION_JSON));
+        ResultActions result = mockMvc.perform(delete("/api/products/{id}", productId)
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(status().isNotFound())
@@ -292,9 +292,9 @@ public class ProductControllerIntegrationTest {
         doNothing().when(productService).updateProductById(eq(productId), eq(productRequest));
 
         //when
-        ResultActions result =  mockMvc.perform(put("/api/products/edit/{id}", productId)
-                        .content(asJsonString(productRequest))
-                        .contentType(MediaType.APPLICATION_JSON));
+        ResultActions result = mockMvc.perform(put("/api/products/edit/{id}", productId)
+                .content(asJsonString(productRequest))
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(status().isOk())
@@ -308,12 +308,12 @@ public class ProductControllerIntegrationTest {
 
         ProductRequest productRequest = createProductRequest();
 
-        doThrow(ProductNotFoundException.class).when(productService).updateProductById(anyInt(),any(ProductRequest.class));
+        doThrow(ProductNotFoundException.class).when(productService).updateProductById(anyInt(), any(ProductRequest.class));
 
         //when
-        ResultActions result =  mockMvc.perform(put("/api/products/edit/{id}", productId)
-                        .content(asJsonString(productRequest))
-                        .contentType(MediaType.APPLICATION_JSON));
+        ResultActions result = mockMvc.perform(put("/api/products/edit/{id}", productId)
+                .content(asJsonString(productRequest))
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(status().isNotFound())
@@ -329,12 +329,12 @@ public class ProductControllerIntegrationTest {
 
         List<ProductDto> productDtoList = createProductDtosMockedList(category);
 
-        when(productService.getProductBySearchTerm(eq(searchTerm),eq(sortType))).thenReturn(productDtoList);
+        when(productService.getProductBySearchTerm(eq(searchTerm), eq(sortType))).thenReturn(productDtoList);
 
         //when
-        ResultActions result =  mockMvc.perform(get("/api/products/search")
-                        .param("searchTerm", searchTerm)
-                        .param("sort", sortType));
+        ResultActions result = mockMvc.perform(get("/api/products/search")
+                .param("searchTerm", searchTerm)
+                .param("sort", sortType));
 
         //then
         result.andExpect(status().isOk())
@@ -348,12 +348,12 @@ public class ProductControllerIntegrationTest {
         String searchTerm = "Jewellery";
         String sortType = "descending";
 
-        when(productService.getProductBySearchTerm(eq(searchTerm),eq(sortType))).thenReturn(Collections.emptyList());
+        when(productService.getProductBySearchTerm(eq(searchTerm), eq(sortType))).thenReturn(Collections.emptyList());
 
         //when
-        ResultActions result =  mockMvc.perform(get("/api/products/search")
-                        .param("searchTerm", searchTerm)
-                        .param("sort", sortType));
+        ResultActions result = mockMvc.perform(get("/api/products/search")
+                .param("searchTerm", searchTerm)
+                .param("sort", sortType));
 
         //then
         result.andExpect(status().isNotFound())

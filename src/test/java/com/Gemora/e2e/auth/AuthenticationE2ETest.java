@@ -35,7 +35,7 @@ public class AuthenticationE2ETest {
     private TokenRepository tokenRepository;
 
     @AfterEach
-    void setUp(){
+    void setUp() {
         tokenRepository.deleteAll();
         userRepository.deleteAll();
     }
@@ -70,7 +70,7 @@ public class AuthenticationE2ETest {
 
         String encodedPassword = new BCryptPasswordEncoder().encode("test");
 
-        User user = new User(2,"John", "Doe", "johny@gmail.com", encodedPassword, Role.USER);
+        User user = new User(2, "John", "Doe", "johny@gmail.com", encodedPassword, Role.USER);
 
         userRepository.save(user);
 
