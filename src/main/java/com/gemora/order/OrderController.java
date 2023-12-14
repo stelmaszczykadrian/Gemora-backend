@@ -50,11 +50,7 @@ public class OrderController {
     public ResponseEntity<List<OrderDto>> getAllOrders() {
         List<OrderDto> allOrders = orderService.getAllOrders();
 
-        if (allOrders.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(allOrders);
-        }
+        return allOrders.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(allOrders);
     }
 
     @GetMapping("/{id}")
@@ -62,11 +58,7 @@ public class OrderController {
             @PathVariable Integer id) {
         List<OrderDto> userOrders  = orderService.getOrdersByUserId(id);
 
-        if (!userOrders.isEmpty()) {
-            return ResponseEntity.ok(userOrders);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return !userOrders.isEmpty() ? ResponseEntity.ok(userOrders) : ResponseEntity.notFound().build();
     }
 }
 

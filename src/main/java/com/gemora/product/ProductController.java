@@ -34,11 +34,7 @@ public class ProductController {
     public ResponseEntity<List<ProductDto>> getAllProducts(@RequestParam String sortBy) {
         List<ProductDto> allProducts = productService.getAllProducts(sortBy);
 
-        if (allProducts.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(allProducts);
-        }
+        return allProducts.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(allProducts);
     }
 
     @Transactional
@@ -63,11 +59,7 @@ public class ProductController {
     public ResponseEntity<List<ProductDto>> getProductsByCategory(@PathVariable String category){
         List<ProductDto> categoryProducts = productService.getProductsByCategory(category);
 
-        if (categoryProducts.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(categoryProducts);
-        }
+        return categoryProducts.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(categoryProducts);
     }
 
     @GetMapping("/sorted")
@@ -76,22 +68,14 @@ public class ProductController {
             @RequestParam("sort") String sortType) {
         List<ProductDto> sortedProducts = productService.getSortedProducts(category, sortType);
 
-        if (sortedProducts.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(sortedProducts);
-        }
+        return sortedProducts.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(sortedProducts);
     }
 
     @GetMapping("/featured")
     public ResponseEntity<List<ProductDto>> getFeaturedProducts(){
         List<ProductDto> featuredProducts = productService.getFeaturedProducts();
 
-        if (featuredProducts.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(featuredProducts);
-        }
+        return featuredProducts.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(featuredProducts);
     }
 
     @DeleteMapping("/{id}")
@@ -129,11 +113,7 @@ public class ProductController {
             @RequestParam("sort") String sortType) {
         List<ProductDto> searchedProducts = productService.getProductBySearchTerm(searchTerm, sortType);
 
-        if (searchedProducts.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(searchedProducts);
-        }
+        return searchedProducts.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(searchedProducts);
     }
 
 }
