@@ -1,4 +1,4 @@
-package com.gemora.payu;
+package com.gemora.order;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Data;
@@ -10,4 +10,9 @@ public class OrderCreateRequest {
 
     @JsonAlias("totalAmount")
     private String totalAmount;
+
+    public OrderCreateRequest(String description, String totalAmount) {
+        this.description = description;
+        this.totalAmount = totalAmount;
+    }
 }

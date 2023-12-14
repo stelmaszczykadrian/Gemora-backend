@@ -2,11 +2,13 @@ package com.gemora.order;
 
 import com.gemora.user.UserDto;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 public class OrderDto {
     private Integer id;
     private List<OrderSimplifiedProduct> products;
