@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-public class TokenService {
+public class PayUTokenService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${payu.client-id}")
