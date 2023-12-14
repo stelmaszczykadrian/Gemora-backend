@@ -51,12 +51,12 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request) {
         if (!EmailValidator.isValidEmail(request.getEmail())) {
-            log.error("Invalid email format. Example: gemora@com.pl");
+            log.error(request.getEmail(), "Invalid email format. Example: gemora@com.pl");
             throw new EmailValidationException("Invalid email format. Example: gemora@com.pl");
         }
 
         if (userExists(request.getEmail())) {
-            log.error("Email already exists in the database.");
+            log.error(request.getEmail(), "Email already exists in the database.");
             throw new EmailAlreadyExistsException("Email already exists in the database.");
         }
 
@@ -79,7 +79,7 @@ public class AuthenticationService {
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         if(!userExists(request.getEmail())){
-            log.error("User already do not exists in the database.");
+            log.error(request.getEmail(), "User already do not exists in the database.");
             throw new UsernameNotFoundException("User already do not exists in the database.");
         }
         authenticationManager.authenticate(
