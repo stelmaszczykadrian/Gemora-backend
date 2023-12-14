@@ -3,9 +3,11 @@ package com.Gemora.e2e.auth;
 import com.gemora.auth.AuthenticationRequest;
 import com.gemora.auth.AuthenticationResponse;
 import com.gemora.auth.RegisterRequest;
+import com.gemora.security.token.TokenRepository;
 import com.gemora.user.Role;
 import com.gemora.user.User;
 import com.gemora.user.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,6 +30,15 @@ public class AuthenticationE2ETest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TokenRepository tokenRepository;
+
+    @AfterEach
+    void setUp(){
+        tokenRepository.deleteAll();
+        userRepository.deleteAll();
+    }
 
     @Test
     void register_ReturnsOkStatusAndExpectedResponse_ValidUserData() {
