@@ -79,7 +79,7 @@ public class ProductService {
         String productName = productRequest.getName();
 
         if (productExists(productName)) {
-            log.error("Product already exists in the database.");
+            log.error("Product with name '{}' already exists in the database.", productName);
             throw new ProductAlreadyExistsException("Product already exists in the database.");
         }
 
@@ -97,18 +97,13 @@ public class ProductService {
     }
 
     public void deleteProductById(int id) {
-        if (!productExists(id)) {
-            log.error("Product not exists in the database.");
-            throw new ProductNotFoundException("Product not exists in the database.");
-        }
+        validateProductExistence(id);
+
         productRepository.deleteById(id);
     }
 
     public void updateProductById(int id, ProductRequest product) {
-        if (!productExists(id)) {
-            log.error("Product not exists in the database.");
-            throw new ProductNotFoundException("Product not exists in the database.");
-        }
+        validateProductExistence(id);
 
         Optional<Product> productToUpdate = productRepository.findById(id);
 
@@ -125,6 +120,24 @@ public class ProductService {
 
     }
 
+    @Transactional
+    public List<ProductDto> getProductBySearchTerm(String searchTerm, String sortType) {
+        List<Product> products = productRepository.findProductByNameContainingIgnoreCase(searchTerm);
+
+        sortProducts(products, sortType);
+
+        return products.stream()
+                .map(ProductMapper::mapProductToDto)
+                .collect(Collectors.toList());
+    }
+
+    private void validateProductExistence(int id) {
+        if (!productExists(id)) {
+            log.error("Product with ID {} does not exist in the database.", id);
+            throw new ProductNotFoundException("Product not exists in the database.");
+        }
+    }
+
     private boolean productExists(String name) {
         Optional<Product> existingProduct = productRepository.findProductByName(name);
 
@@ -135,16 +148,5 @@ public class ProductService {
         Optional<Product> existingProduct = productRepository.findById(id);
 
         return existingProduct.isPresent();
-    }
-
-    @Transactional
-    public List<ProductDto> getProductBySearchTerm(String searchTerm, String sortType) {
-        List<Product> products = productRepository.findProductByNameContainingIgnoreCase(searchTerm);
-
-        sortProducts(products, sortType);
-
-        return products.stream()
-                .map(ProductMapper::mapProductToDto)
-                .collect(Collectors.toList());
     }
 }
